@@ -1,0 +1,161 @@
+// screens/TrophytScreen.js
+import React from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+
+const Trophys = [
+  {
+    id: 1,
+    category: '해보고싶다',
+    color: '#00AEEF',
+    title: '열기구 타기',
+    createdAt: '2024.04.21',
+    targetDate: '2025.02.14',
+  },
+  {
+    id: 2,
+    category: '배우고싶다',
+    color: '#FF6B6B',
+    title: '일본어 자격증따기',
+    createdAt: '2024.01.17',
+    targetDate: '2025.01.24',
+  },{
+    id: 3,
+    category: '배우고싶다',
+    color: '#FF6B6B',
+    title: '일본어 자격증따기',
+    createdAt: '2024.01.17',
+    targetDate: '2025.01.24',
+  },{
+    id: 4,
+    category: '배우고싶다',
+    color: '#FF6B6B',
+    title: '일본어 자격증따기',
+    createdAt: '2024.01.17',
+    targetDate: '2025.01.24',
+  },{
+    id: 5,
+    category: '배우고싶다',
+    color: '#FF6B6B',
+    title: '일본어 자격증따기',
+    createdAt: '2024.01.17',
+    targetDate: '2025.01.24',
+  },{
+    id: 6,
+    category: '배우고싶다',
+    color: '#FF6B6B',
+    title: '일본어 자격증따기',
+    createdAt: '2024.01.17',
+    targetDate: '2025.01.24',
+  },{
+    id: 7,
+    category: '배우고싶다',
+    color: '#FF6B6B',
+    title: '일본어 자격증따기',
+    createdAt: '2024.01.17',
+    targetDate: '2025.01.24',
+  },{
+    id: 8,
+    category: '배우고싶다',
+    color: '#FF6B6B',
+    title: '일본어 자격증따기',
+    createdAt: '2024.01.17',
+    targetDate: '2025.01.24',
+  },
+];
+
+export default function TrophytScreen() {
+  return (
+    <View style={styles.container1}>
+      {/* 상단 진행도 */}
+      <View style={styles.topSection}>
+        <View style={styles.box}>
+            {/* DB에서 가져오기 */}
+            <Text style={styles.progressText}>2/10</Text>  
+            <Image
+            source={require('../assets/images/trophy.png')}
+            style={styles.trophy}
+            />
+        </View>
+        <View style={styles.box}>
+            <TouchableOpacity style={styles.button}>
+                <Image
+                source={require('../assets/images/trophys.png')}
+                style={styles.trophys}
+                />
+                <Text style={styles.buttonText}>명예의 전당 보러가기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+                <Image
+                source={require('../assets/images/good.png')}
+                style={styles.good}
+                />
+                <Text style={styles.buttonText}>버킷리스트 추천받기</Text>
+            </TouchableOpacity>
+        </View>
+      </View>
+      
+      <ScrollView style={styles.container2}>
+      {/* 트로피 리스트 Db에서 가져오기*/}
+        {Trophys.map(Trophy => (
+            <TouchableOpacity key={Trophy.id} style={styles.card} >
+            <Image
+                source={require('../assets/images/trophy.png')}
+                style={styles.cardTrophy}
+            />
+            <View style={styles.cardContent}>
+                {/* 세부페이지만들어야함함 */}
+                <Text style={[styles.badge, { backgroundColor: Trophy.color }]} onPress={()=>{navigation.navigate('DetailPage')}}>
+                {Trophy.category}
+                </Text>
+                <Text style={styles.title}>{Trophy.title}</Text>
+                <Text style={styles.date}>작성일: {Trophy.createdAt}</Text>
+                <Text style={styles.date}>달성일: {Trophy.targetDate}</Text>
+            </View>
+            </TouchableOpacity>
+        ))}
+        </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container1: { flex: 1, backgroundColor: '#333A73'},
+  box: {},
+  container2: { flex: 1, backgroundColor: 'white'},
+  topSection: { alignItems: 'center', marginBottom: 20, flexDirection: 'row'},
+  trophy: { width: 84, height: 84, marginBottom: 8 },
+  progressText: { fontSize: 20, fontWeight: 'bold', marginBottom: 12, color: 'white'},
+  button: {
+    flexDirection: 'row',
+    backgroundColor: '#434B8C',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginVertical: 6,
+    width: 216,
+    height: 62,
+  },
+  buttonText: { color: '#fff', textAlign: 'center', fontSize: 16 },
+  card: {
+    flexDirection: 'row',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+    alignItems: 'flex-start',
+  },
+  cardTrophy: { width: 84, height: 84, marginRight: 12, marginTop: 4 },
+  cardContent: { flex: 1 },
+  badge: {
+    color: '#fff',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  title: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
+  date: { fontSize: 12, color: '#555' },
+  trophys:{width: 67, height: 28},
+  good: {width: 44, height: 44},
+});

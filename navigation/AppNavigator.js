@@ -3,6 +3,8 @@ import { Text, View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import TrophyScreen from '../screens/TrophyScreen';
+
 
 //  화면별 임시 컴포넌트 
 function HomeScreen() {
@@ -29,13 +31,18 @@ function CommunityScreen() {
   );
 }
 
-function TrophyScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>트로피 화면</Text>
-    </View>
-  );
-}
+// function TrophyScreen() {
+  // return (
+    // <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    //   <Text>트로피 화면</Text>
+    // </View>
+    // <Stack.Navigator>
+      // <Stack.Screen name="Trophy" component={TrophyHomeScreen} />
+      // <Stack.Screen name="TrophyDetail" component={TrophyDetailScreen} options={{ title: '트로피 상세' }} />
+    // </Stack.Navigator>
+
+  // );
+// }
 
 const Tab = createBottomTabNavigator();
 
