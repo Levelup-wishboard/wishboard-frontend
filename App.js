@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from './components/Header';
+import CommunityHomeScreen from './screens/CommunityHomeScreen';
 
 // 각 화면에 해당하는 컴포넌트 
 function HomeScreen() {
@@ -29,14 +30,7 @@ function BucketListScreen() {
 }
 
 function CommunityScreen() {
-  return (
-    <View style={styles.container}>
-      <Header leftContent="커뮤니티" />
-      <View style={styles.content}>
-        <Text>커뮤니티 화면입니다.</Text>
-      </View>
-    </View>
-  );
+  return <CommunityHomeScreen />;
 }
 
 function TrophyScreen() {

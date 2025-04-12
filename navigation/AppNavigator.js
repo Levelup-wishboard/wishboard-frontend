@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import CommunityHomeScreen from '../screens/CommunityHomeScreen';
 
 //  화면별 임시 컴포넌트 
 function HomeScreen() {
@@ -22,11 +23,7 @@ function BucketListScreen() {
 }
 
 function CommunityScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>커뮤니티 화면</Text>
-    </View>
-  );
+  return <CommunityHomeScreen />;
 }
 
 function TrophyScreen() {
