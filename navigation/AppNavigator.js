@@ -1,103 +1,73 @@
-// navigation/AppNavigator.js
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import Header from '../components/Header';
-
-// (예시) 스크린들
-import HomeScreen from '../screens/HomeScreen';
-import CommunityHomeScreen from '../screens/CommunityHomeScreen';
-import PostDetailScreen from '../screens/PostDetailScreen';
-import ChallengeScreen from '../screens/ChallengeScreen';
-import MyScreen from '../screens/MyScreen';
-
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
-
-function CommunityStack() {
+//  화면별 임시 컴포넌트 
+function HomeScreen() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="CommunityHome"
-        component={CommunityHomeScreen}
-        options={({ navigation }) => ({
-          header: () => (
-            <Header
-              showBack={false}
-              onSearch={(e) => console.log('search:', e.nativeEvent.text)}
-              onPressNotification={() => navigation.navigate('Notifications')}
-              onPressProfile={() => navigation.navigate('Profile')}
-            />
-          ),
-        })}
-      />
-      <Stack.Screen
-        name="PostDetail"
-        component={PostDetailScreen}
-        options={({ navigation }) => ({
-          header: () => (
-            <Header
-              showBack={true}
-              onBack={() => navigation.goBack()}
-              placeholder="댓글을 입력해주세요"
-              onSearch={(e) => console.log('comment:', e.nativeEvent.text)}
-              onPressNotification={() => {}}
-              onPressProfile={() => {}}
-            />
-          ),
-        })}
-      />
-    </Stack.Navigator>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>홈 화면</Text>
+    </View>
   );
 }
 
+function BucketListScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>버킷리스트 화면</Text>
+    </View>
+  );
+}
+
+function CommunityScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>커뮤니티 화면</Text>
+    </View>
+  );
+}
+
+function TrophyScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>트로피 화면</Text>
+    </View>
+  );
+}
+
+const Tab = createBottomTabNavigator();
+
 export default function AppNavigator() {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: { height: 60 },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Icon name="home" size={24} color={focused ? '#000' : '#888'} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Community"
-        component={CommunityStack}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Icon name="chat-bubble-outline" size={24} color={focused ? '#000' : '#888'} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Challenge"
-        component={ChallengeScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Icon name="flag" size={24} color={focused ? '#000' : '#888'} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="My"
-        component={MyScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Icon name="person" size={24} color={focused ? '#000' : '#888'} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+
+            if (route.name === 'Home') {
+              iconName = focused ? 'home' : 'home-outline';
+            } else if (route.name === 'BucketList') {
+              iconName = focused ? 'flag' : 'flag-outline';
+            } else if (route.name === 'Community') {
+              iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+            } else if (route.name === 'Trophy') {
+              iconName = focused ? 'trophy' : 'trophy-outline';
+            }
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: '#FBA834',
+          tabBarInactiveTintColor: 'gray',
+        })}
+      >
+        {/* 탭으로 이동할 스크린들 */}
+        <Tab.Screen name="Home" component={HomeScreen} options={{ title: '홈' }} />
+        <Tab.Screen name="BucketList" component={BucketListScreen} options={{ title: '버킷리스트' }} />
+        <Tab.Screen name="Community" component={CommunityScreen} options={{ title: '커뮤니티' }} />
+        <Tab.Screen name="Trophy" component={TrophyScreen} options={{ title: '트로피' }} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
