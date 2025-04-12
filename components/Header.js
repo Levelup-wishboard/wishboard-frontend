@@ -16,16 +16,15 @@ const Header = (props) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        {showBackButton ? (
+        {showBackButton && (
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <Ionicons name="chevron-back-outline" size={28} color="#FBA834" />
           </TouchableOpacity>
-        ) : leftContent ? (
+        )}
+        {leftContent && (
           <View style={styles.leftContentContainer}>
             <Text style={styles.leftContentText}>{leftContent}</Text>
           </View>
-        ) : (
-          <View style={styles.placeholder} />
         )}
         <View style={styles.rightContainer}>
           <Ionicons name="notifications-outline" size={28} color="#FBA834" style={styles.icon} />
@@ -57,7 +56,8 @@ const styles = StyleSheet.create({
     marginLeft: -20,
   },
   leftContentContainer: {
-    width: 44, 
+    //width: 44, 
+    paddingHorizontal: 8,
     justifyContent: 'center',
   },
   leftContentText: {
