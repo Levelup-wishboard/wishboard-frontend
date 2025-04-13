@@ -119,23 +119,25 @@ export default function TrophytScreen() {
 }
 
 const styles = StyleSheet.create({
-  container1: { flex: 1, backgroundColor: '#333A73'},
-  box: {},
+  container1: { flex: 1, backgroundColor: '#333A73', height: 174},
+  box: {alignItems: 'center',paddingLeft:20},
   container2: { flex: 1, backgroundColor: 'white'},
-  topSection: { alignItems: 'center', marginBottom: 20, flexDirection: 'row'},
+  topSection: { alignItems: 'center', marginBottom: 20, marginTop: 20, flexDirection: 'row', paddingLeft:50},
   trophy: { width: 84, height: 84, marginBottom: 8 },
-  progressText: { fontSize: 20, fontWeight: 'bold', marginBottom: 12, color: 'white'},
+  progressText: { textAlign: 'center', width: 84, fontSize: 20, fontWeight: 'bold', marginBottom: 12, color: 'white'},
   button: {
+    alignItems: 'center',
     flexDirection: 'row',
     backgroundColor: '#434B8C',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 12,
     marginVertical: 6,
-    width: 216,
+    width: 230,
     height: 62,
+    marginLeft:30 
   },
-  buttonText: { color: '#fff', textAlign: 'center', fontSize: 16 },
+  buttonText: { color: '#fff', textAlign: 'center', fontSize: 12, marginLeft: 15},
   card: {
     flexDirection: 'row',
     padding: 16,
