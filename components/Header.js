@@ -3,10 +3,14 @@ import { SafeAreaView, View, TouchableOpacity,Text, StyleSheet, Platform, Status
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const Header = (props) => {
-  const { leftContent } = props;
-  // props.showBackButton이 undefined인 경우 false로 처리
-  const showBackButton = props.showBackButton !== undefined ? props.showBackButton : false;
+const Header = ({
+  leftContent,
+  showBackButton = false,
+  showBookmark = false,
+  isBookmarked = false,
+  onBookmarkPress = () => {}
+}) => {
+
   const navigation = useNavigation();
 
   const handleBack = () => {
@@ -16,17 +20,32 @@ const Header = (props) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        {showBackButton ? (
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="chevron-back-outline" size={28} color="#FBA834" />
+        {/* 왼쪽: 뒤로가기버튼 */}
+        <View style={styles.leftContainer}>
+          {showBackButton && (
+            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+              <Ionicons name="chevron-back-outline" size={28} color="#FBA834" />
+            </TouchableOpacity>
+          )}
+          {leftContent ? (
+            <Text style = {styles.leftContentText}>{leftContent}</Text>
+          ) : (
+            !showBackButton && <View style={styles.placeholder}/>
+          )}
+        </View>
+
+        {/* 가운데: 북마크 아이콘 (커뮤니티 페이지용) */}
+        {showBookmark && (
+          <TouchableOpacity onPress={onBookmarkPress} style={styles.bookmarkButton}>
+            <Ionicons
+              name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
+              size={24}
+              color="#FBA834"
+            />
           </TouchableOpacity>
-        ) : leftContent ? (
-          <View style={styles.leftContentContainer}>
-            <Text style={styles.leftContentText}>{leftContent}</Text>
-          </View>
-        ) : (
-          <View style={styles.placeholder} />
         )}
+        
+        {/* 오른쪽: 알림, 마이페이지 버튼 */}
         <View style={styles.rightContainer}>
           <Ionicons name="notifications-outline" size={28} color="#FBA834" style={styles.icon} />
           <Ionicons name="person-outline" size={28} color="#FBA834" style={styles.icon} />
@@ -52,6 +71,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
   },
+  leftContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   backButton: {
     padding: 8,
     marginLeft: -20,
@@ -66,6 +89,11 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 44,
+  },
+  bookmarkButton: {
+    padding: 8,
+    marginHorizontal: 8,
+    marginLeft: -60,
   },
   rightContainer: {
     flexDirection: 'row',
