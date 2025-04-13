@@ -12,11 +12,13 @@ import {
     TouchableOpacity,
     ScrollView
   } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import Feather from 'react-native-vector-icons/Feather';
+import WriteButton from '../components/WriteButton';
+//import BOARD_COLORS from '../constants/Colors';
 
-// 게시판별 라벨 색상 맵
+// // 게시판별 라벨 색상 맵
 const BOARD_COLORS = {
   'Q&A': '#93FFC9',       // 초록
   '정보': '#93DEFF',      // 파랑
@@ -37,6 +39,7 @@ const mockData = {
           image: null,
           likes: 10,
           comments: 5,
+          date: '2025/4/13',
           time: '18:30',
         },
         {
@@ -48,6 +51,7 @@ const mockData = {
           image: require('../assets/images/bungee.png'),
           likes: 3,
           comments: 2,
+          date: '2025/4/13',
           time: '17:15',
         },
       ],
@@ -61,6 +65,7 @@ const mockData = {
         image: null,
         likes: 10,
         comments: 5,
+        date: '2025/4/13',
         time: '18:30',
       },
     ],
@@ -74,6 +79,7 @@ const mockData = {
         image: require('../assets/images/prize.png'),
         likes: 3,
         comments: 2,
+        date: '2025/4/13',
         time: '17:15',
       },
     ],
@@ -87,6 +93,7 @@ const mockData = {
         image: null,
         likes: 10,
         comments: 5,
+        date: '4/13',
         time: '18:30',
       },
     ],
@@ -100,6 +107,7 @@ const mockData = {
         image: null,
         likes: 10,
         comments: 5,
+        date: '4/13',
         time: '18:30',
       },
     ],
@@ -107,7 +115,7 @@ const mockData = {
 const TABS = ['All', '정보게시판', '트로피게시판', 'Q&A게시판', '인원모집게시판'];
 
 const CommunityDetailScreen = () => {
-    
+  const navigation = useNavigation();
   const route = useRoute();
   const { communityId, title } = route.params;
   //const [posts, setPosts] = useState([]);
@@ -117,12 +125,8 @@ const CommunityDetailScreen = () => {
 
   useEffect(() => {
     // TODO: communityId 로 API 호출 or 데이터 가져오기
-    // 예시:
     // fetch(`/api/communities/${communityId}/posts`).then(...)
-    setPosts([
-      { id: '1', author: '나나', content: '첫 게시글입니다.' },
-      { id: '2', author: '키키', content: '수상스키 시작을 위한 필수 준비물' },
-    ]);
+
     // TODO: API 또는 로컬에서 북마크 상태 불러오기
     // setIsBookmarked(fetchedValue);
 
@@ -139,6 +143,11 @@ const CommunityDetailScreen = () => {
   const onSelectTab = (tab) => {
     setSelectedTab(tab);
     setPosts(mockData[tab] || []);
+  };
+
+  const handleWrite = () => {
+    console.log('글쓰기 버튼 눌림');
+    // TODO: 글쓰기 페이지로 이동하거나, 모달 열기 등 구현
   };
 
 return (
@@ -181,14 +190,18 @@ return (
       {/* 게시글 리스트 */}
       <FlatList
         data={posts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => {
           // board 값에 맞춰 BOARD_COLORS에서 색상을 가져옵니다.
           const boardColor = BOARD_COLORS[item.board] || '#666';
           return (
-            <View style={styles.postContainer}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('PostDetail', {post: item,title})}
+              activeOpacity={0.8}
+            >
 
+            <View style={styles.postContainer}>
               {/* 상단: detail + board */}
               <View style={styles.labelRow}>
                 <View style={[styles.labelBox, styles.detailBox]}>
@@ -222,12 +235,17 @@ return (
                   <Feather name="message-circle" size={16} color="#666" />
                   <Text style={styles.statsText}>{item.comments}</Text>
                 </View>
+                <Text style={styles.dateText}>{item.date}</Text>
                 <Text style={styles.timeText}>{item.time}</Text>
               </View>
+
       </View>
+      </TouchableOpacity>
     );
   }}
 />
+      {/* 하단 글쓰기 버튼 */}
+      <WriteButton onPress={handleWrite} />
     </View>
   );
 };
@@ -334,9 +352,15 @@ const styles = StyleSheet.create({
     color: '#666',
     marginLeft: 4,
   },
+  dateText:{
+    fontSize: 12,
+    color: '#999',
+    marginRight:5,
+  },
   timeText: {
     fontSize: 12,
     color: '#999',
+    marginLeft:5,
   },
 
 });

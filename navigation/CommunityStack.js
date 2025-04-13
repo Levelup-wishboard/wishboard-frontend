@@ -3,6 +3,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CommunityHomeScreen from '../screens/CommunityHomeScreen';
 import CommunityDetailScreen from '../screens/CommunityDetailScreen';
+import PostDetailScreen from '../screens/PostDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -11,6 +12,7 @@ export default function CommunityStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="CommunityHome" component={CommunityHomeScreen} />
       <Stack.Screen name="CommunityDetail" component={CommunityDetailScreen} />
+      <Stack.Screen name="PostDetail" component={PostDetailScreen} />
     </Stack.Navigator>
   );
 }
