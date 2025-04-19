@@ -197,7 +197,15 @@ return (
           const boardColor = BOARD_COLORS[item.board] || '#666';
           return (
             <TouchableOpacity
-              onPress={() => navigation.navigate('PostDetail', {post: item,title})}
+              onPress={() => {
+                const postData =
+                  item.board === '트로피' ? { ...item, image: null } : item;   // ★
+                navigation.navigate('PostDetail', {
+                  post: postData,
+                  title,
+                  communityTitle: title,
+                });
+              }}
               activeOpacity={0.8}
             >
 
