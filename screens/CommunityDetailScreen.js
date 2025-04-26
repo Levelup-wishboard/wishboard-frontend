@@ -147,7 +147,13 @@ const CommunityDetailScreen = () => {
 
   const handleWrite = () => {
     console.log('글쓰기 버튼 눌림');
-    // TODO: 글쓰기 페이지로 이동하거나, 모달 열기 등 구현
+    navigation.navigate('PostWrite', {
+      communityId,
+      communityTitle: title,
+      defaultBoardTab: selectedTab,
+    }
+    )
+    
   };
 
 return (
