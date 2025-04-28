@@ -3,13 +3,10 @@ import { Text, View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-<<<<<<< HEAD
 import TrophyScreen from '../screens/TrophyScreen';
-
-=======
 import CommunityStack from './CommunityStack';
 import CommunityHomeScreen from '../screens/CommunityHomeScreen';
->>>>>>> feat/SCRUM-19-Community-Page
+
 
 //  화면별 임시 컴포넌트 
 function HomeScreen() {
