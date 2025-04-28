@@ -19,7 +19,7 @@ export default function App() {
         title = '버킷리스트';
         break;
       case 'Community':
-        title = '커뮤니티';
+        title = '';
         break;
       case 'Trophy':
         title = '트로피';
@@ -32,14 +32,7 @@ export default function App() {
 
   return (
     <NavigationContainer onStateChange={handleNavigationStateChange}>
-      {/* Header 영역: 네비게이션 상태에 따라 왼쪽 텍스트가 바뀌도록 */}
-      <View style={styles.headerWrapper}>
-        <Header leftContent={headerTitle} />
-      </View>
-      {/* 네비게이터  */}
-      <View style={styles.navigatorWrapper}>
-        <AppNavigator />
-      </View>
+      <AppNavigator />
     </NavigationContainer>
   );
 }

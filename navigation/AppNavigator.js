@@ -3,8 +3,13 @@ import { Text, View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+<<<<<<< HEAD
 import TrophyScreen from '../screens/TrophyScreen';
 
+=======
+import CommunityStack from './CommunityStack';
+import CommunityHomeScreen from '../screens/CommunityHomeScreen';
+>>>>>>> feat/SCRUM-19-Community-Page
 
 //  화면별 임시 컴포넌트 
 function HomeScreen() {
@@ -24,11 +29,7 @@ function BucketListScreen() {
 }
 
 function CommunityScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>커뮤니티 화면</Text>
-    </View>
-  );
+  return <CommunityHomeScreen />;
 }
 
 // function TrophyScreen() {
@@ -71,7 +72,7 @@ export default function AppNavigator() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: '홈' }} />
       <Tab.Screen name="BucketList" component={BucketListScreen} options={{ title: '버킷리스트' }} />
-      <Tab.Screen name="Community" component={CommunityScreen} options={{ title: '커뮤니티' }} />
+      <Tab.Screen name="Community" component={CommunityStack} options={{ title: '커뮤니티' }} />
       <Tab.Screen name="Trophy" component={TrophyScreen} options={{ title: '트로피' }} />
     </Tab.Navigator>
   );
