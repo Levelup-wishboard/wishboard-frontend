@@ -6,15 +6,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import TrophyScreen from '../screens/TrophyScreen';
 import CommunityStack from './CommunityStack';
 import CommunityHomeScreen from '../screens/CommunityHomeScreen';
+import MainScreen from '../screens/MainScreen';
 
 
 //  화면별 임시 컴포넌트 
 function HomeScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>홈 화면</Text>
-    </View>
-  );
+  return < MainScreen/>;
 }
 
 function BucketListScreen() {
