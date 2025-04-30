@@ -11,8 +11,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,            // ★ 슬라이드 애니메이션
+  Alert
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute ,useNavigation} from '@react-navigation/native';
 import Header from '../components/Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -21,9 +22,11 @@ import PrizeIcon from '../assets/images/prize.png';
 
 export default function PostDetailScreen() {
 
+  const navigation = useNavigation();
   const route = useRoute();
-  const { post, title } = route.params || {};         // 안전하게 기본값 처리
-  console.log('전달된 board 값:', post?.board);
+  const { post, title, onDelete } = route.params || {};         // 안전하게 기본값 처리
+  const [currentPost, setPost] = React.useState(post);
+  console.log('전달된 board 값:', currentPost?.board);
 
   /* ------------------- 게시글 좋아요 ------------------- */
   const [postLiked, setPostLiked] = useState(false);
@@ -41,6 +44,8 @@ export default function PostDetailScreen() {
     const [inputVisible, setInputVisible] = useState(false);
     const [inputText, setInputText] = useState('');
     const [replyTarget, setReplyTarget] = useState({ type: 'post', id: null }); // post / comment
+    const [editMode, setEditMode] = useState(false); //지금 수정중인지
+    const [editIds, setEditIds] = useState({ cId:null, rId:null }); //대상 ID
     const slideAnim = useRef(new Animated.Value(80)).current; // 0이면 보임
 
   /* ------------------- 예시 댓글 ------------------- */
@@ -131,6 +136,15 @@ export default function PostDetailScreen() {
   const sendComment = () => {
     const text = inputText.trim();
     if (!text) return;
+    if (editMode && editIds.cId && !editIds.rId) {
+      setCommentList(list =>
+        list.map(c =>
+          c.id == editIds.cId ? {...c, content:text } : c
+        )
+      );
+      finishInput();
+      return;
+    }
 
     if (replyTarget.type === 'post') {
       /* 새 댓글 */
@@ -174,31 +188,100 @@ export default function PostDetailScreen() {
     }
 
     /* 입력창 닫기 */
-    setInputText('');
-    Animated.timing(slideAnim, { toValue: 80, duration: 180, useNativeDriver: true }).start(() =>
-      setInputVisible(false)
-    );
+    // setInputText('');
+    // Animated.timing(slideAnim, { toValue: 80, duration: 180, useNativeDriver: true }).start(() =>
+    //   setInputVisible(false)
+    // );
+    finishInput();
   };
+
+  /* ------------------- 입력창 닫기 & 상태 초기화 ------------------- */
+const finishInput = () => {
+  setInputText('');
+  setEditMode(false);
+  setEditIds({ cId: null, rId: null });     // 대상 초기화
+
+  Animated.timing(slideAnim, {
+    toValue: 80,          // 아래로 내려감
+    duration: 180,
+    useNativeDriver: true,
+  }).start(() => setInputVisible(false));
+};
+
 
   /* ------------------- 댓글 메뉴 핸들러 ------------------- */
   const handleCommentEdit = (id) => {
     console.log(`댓글 ${id} 수정`);
     setCommentMenuVisible(null);
+    // 수정할 댓글 내용 찾아와서 입력창에 채우기
+    const target = commentList.find(c => c.id === id);
+    if (!target) return;
+    setInputText(target.content);
+    setEditMode(true);
+    setEditIds({ cId: id, rId: null });
+    setReplyTarget({ type:'comment', id: id }); //필요없을수도
+    openInput({});
   };
-  const handleCommentDelete = (id) => {
-    console.log(`댓글 ${id} 삭제`);
+
+  const handleCommentDelete = (commentId) => {
+    console.log(`댓글 ${commentId} 삭제`);
     setCommentMenuVisible(null);
+  
+    Alert.alert(
+      '삭제하시겠어요?',
+      '삭제하면 되돌릴 수 없습니다.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: () => {
+            setCommentList((list) => 
+              list.filter((c) => c.id !== commentId)
+            );
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   /* ------------------- 게시글 메뉴 핸들러 ------------------- */
   const handleEdit = () => {
     console.log('게시글 수정');
     setShowPopover(false);
+    navigation.navigate('PostWrite',{
+      mode: 'edit',
+      postData : currentPost,
+      onSave: (updated) => setPost(p => ({...p, ...updated})),
+    });
   };
-  const handleDelete = () => {
-    console.log('게시글 삭제');
-    setShowPopover(false);
-  };
+
+/* ---------------- 게시글 메뉴 핸들러 ---------------- */
+const handleDelete = () => {
+  setShowPopover(false);
+
+  Alert.alert(
+    '삭제하시겠어요?',
+    '삭제하면 되돌릴 수 없습니다.',
+    [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => {
+          // ① 목록 화면 state 갱신
+          if (onDelete) onDelete(currentPost.id);
+
+          // ② 이전 화면으로
+          navigation.goBack();
+        },
+      },
+    ],
+    { cancelable: true }
+  );
+};
+
 
   /* ------------------- 게시글 헤더 ------------------- */
   const renderHeader = () => {
@@ -212,7 +295,7 @@ export default function PostDetailScreen() {
       content = '',
       image,
       comments = commentList.length,
-    } = post || {};
+    } = currentPost || {};
 
     const BOARD_COLORS = {
       'Q&A': '#93FFC9',
@@ -551,7 +634,7 @@ const styles = StyleSheet.create({
  trophyBtn: {
    position: 'absolute',
    right: 20,
-   bottom: 46,           // 키보드/입력창과 간섭하지 않는 위치
+   bottom: 46,           
    width: 56,
    height: 56,
    borderRadius: 28,

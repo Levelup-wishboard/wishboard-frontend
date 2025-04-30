@@ -210,6 +210,8 @@ return (
                   post: postData,
                   title,
                   communityTitle: title,
+                  onDelete: (id) =>
+                    setPosts((prev) => prev.filter((p) => p.id !==id)),
                 });
               }}
               activeOpacity={0.8}

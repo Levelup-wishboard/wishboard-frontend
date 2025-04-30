@@ -24,8 +24,8 @@ const CommunityHomeScreen = () => {
   };
 
   const onAddKeyword = () => {
-    // TODO: 키워드 추가 로직 (모달 열기 등)
     console.log('알림 키워드 추가');
+    navigation.navigate('KeywordRegister');
   };
 
   return (
@@ -39,6 +39,7 @@ const CommunityHomeScreen = () => {
             style={styles.searchInput}
             placeholder="게시판을 입력해주세요"
             placeholderTextColor="#999"
+            onFocus={() => navigation.navigate('CommunitySearch')}
           />
         </View>
       </View>

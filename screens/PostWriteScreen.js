@@ -60,16 +60,23 @@ const sampleTrophies = [
 
 export default function PostWriteScreen() {
   const navigation = useNavigation();
-  const { communityId, communityTitle, defaultBoardTab } = useRoute().params;
+  const { 
+    communityId, 
+    communityTitle, 
+    defaultBoardTab,
+    mode,
+    postData,
+    onSave,
+  } = useRoute().params;
 
   /* ---- 상태 ---- */
   const [board, setBoard] = useState(
-    defaultBoardTab?.replace('게시판', '') || '정보'
+    postData?.board  || defaultBoardTab?.replace('게시판', '') || '정보'
   );
-  const [detail, setDetail] = useState('');
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [images, setImages] = useState([]);              // {uri,...} 배열
+  const [detail, setDetail] = useState(postData?.detail  || '');
+  const [title, setTitle] = useState(postData?.title   || '');
+  const [content, setContent] = useState(postData?.content || '');
+  const [images, setImages] = useState(postData?.images  || []);              // {uri,...} 배열
   const [openChat, setOpenChat] = useState('');
 
    /* ---- 트로피 관련 ---- */
@@ -132,6 +139,12 @@ const pickImage = async () => {
       openChat,
       selectedTrophy,
     });
+    const payload = { board, detail, title, content, images, openChat, selectedTrophy };
+    if (mode === 'edit' && onSave){
+      onSave(payload); 
+    } else{
+      console.log('새 글 저장', payload);
+    }
     navigation.goBack();
   };
 
@@ -141,7 +154,7 @@ const pickImage = async () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-      <Header showBackButton leftContent={communityTitle || '글쓰기'} />
+      <Header showBackButton leftContent={mode === 'edit' ? '글 수정' : (communityTitle || '글쓰기')} />
 
       <ScrollView contentContainerStyle={styles.form}>
         {/* 게시판 선택 */}
