@@ -58,7 +58,6 @@ export default function BucketListDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* 상단 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
@@ -72,7 +71,14 @@ export default function BucketListDetailScreen() {
             </View>
           </View>
           <View style={styles.rowMid}>
-            <Image source={bucket.image} style={styles.image} />
+            <Image
+              source={
+                typeof bucket.image === 'string'
+                  ? { uri: bucket.image }
+                  : bucket.image
+              }
+              style={styles.image}
+            />
             <Text style={styles.title}>{bucket.title}</Text>
           </View>
         </View>
@@ -98,15 +104,17 @@ export default function BucketListDetailScreen() {
           <Text>{bucket.vow}</Text>
         </View>
 
-        <TouchableOpacity style={styles.recordButton}>
-          <Text style={styles.buttonText}>오늘의 도전 기록하기</Text>
-        </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.recordButton}
+  onPress={() => navigation.navigate('ChallengeRecord', { bucket })}
+>
+  <Text style={styles.buttonText}>오늘의 도전 기록하기</Text>
+</TouchableOpacity>
         <TouchableOpacity style={styles.completeButton} onPress={handleCompletePress}>
           <Text style={styles.buttonText}>달성 완료</Text>
         </TouchableOpacity>
       </ScrollView>
 
-      {/* 1차 확인 모달 */}
       <Modal visible={showConfirmModal} transparent animationType="fade">
         <View style={styles.modalWrapper}>
           <View style={styles.modalBox}>
@@ -130,7 +138,6 @@ export default function BucketListDetailScreen() {
         </View>
       </Modal>
 
-      {/* 축하 모달 */}
       <Modal visible={showCongratsModal} transparent animationType="fade">
         <View style={styles.modalWrapper}>
           <View style={styles.modalBox}>
@@ -297,3 +304,4 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
 });
+

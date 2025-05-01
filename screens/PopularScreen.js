@@ -43,11 +43,9 @@ export default function PopularBucketListScreen({ navigation }) {
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>인기버킷리스트</Text>
-        <View style={styles.iconRow}>
-          <Ionicons name="notifications-outline" size={22} color="#FBA834" style={styles.icon} />
-          <Ionicons name="person-outline" size={22} color="#FBA834" style={styles.icon} />
+
         </View>
-      </View>
+      
 
       {/* 전체 콘텐츠 스크롤뷰 */}
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
@@ -102,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#2F327D',
     padding: 12,
-    justifyContent: 'space-between',
+    
   },
   headerTitle: {
     color: '#fff',
