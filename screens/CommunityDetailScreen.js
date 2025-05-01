@@ -16,9 +16,10 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import Feather from 'react-native-vector-icons/Feather';
 import WriteButton from '../components/WriteButton';
-//import BOARD_COLORS from '../constants/Colors';
+import { mockPosts } from '../mock/data';
 
-// // 게시판별 라벨 색상 맵
+
+// 게시판별 라벨 색상 맵
 const BOARD_COLORS = {
   'Q&A': '#93FFC9',       // 초록
   '정보': '#93DEFF',      // 파랑
@@ -27,112 +28,28 @@ const BOARD_COLORS = {
   All: '#607D8B',              // 회색
 };
 
-// 예시 데이터 (각 게시판별)
-const mockData = {
-    All: [
-        {
-          id: '1',
-          board: '정보',
-          detail: '수상스키',
-          title: '수상스키 장소 추천이요',
-          author: '나나',
-          image: null,
-          likes: 10,
-          comments: 5,
-          date: '2025/4/13',
-          time: '18:30',
-        },
-        {
-          id: '2',
-          board: 'Q&A',
-          detail: '번지점프',
-          title: '번지점프 어디가 최고일까요?',
-          author: '키키',
-          image: require('../assets/images/bungee.png'),
-          likes: 3,
-          comments: 2,
-          date: '2025/4/13',
-          time: '17:15',
-        },
-      ],
-    정보게시판: [
-      {
-        id: '1',
-        board: '정보',
-        detail: '수상스키',
-        title: '수상스키 장소 추천이요',
-        author: '나나',
-        image: null,
-        likes: 10,
-        comments: 5,
-        date: '2025/4/13',
-        time: '18:30',
-      },
-    ],
-    트로피게시판: [
-      {
-        id: '4',
-        board: '트로피',
-        detail: '번지점프',
-        title: '번지점프 성공했어요',
-        author: '키키',
-        image: require('../assets/images/prize.png'),
-        likes: 3,
-        comments: 2,
-        date: '2025/4/13',
-        time: '17:15',
-      },
-    ],
-    'Q&A게시판': [
-      {
-        id: '3',
-        board: 'Q&A',
-        detail: '수상스키',
-        title: '수상스키 질문있어요',
-        author: '나나',
-        image: null,
-        likes: 10,
-        comments: 5,
-        date: '4/13',
-        time: '18:30',
-      },
-    ],
-    인원모집게시판: [
-      {
-        id: '5',
-        board: '인원모집',
-        detail: '수상스키',
-        title: '수상스키 함께할 멤버 모집합니다!',
-        author: '나나',
-        image: null,
-        likes: 10,
-        comments: 5,
-        date: '4/13',
-        time: '18:30',
-      },
-    ],
-  };
-const TABS = ['All', '정보게시판', '트로피게시판', 'Q&A게시판', '인원모집게시판'];
+const TABS = [
+  {key : 'All', label:'All'},
+  {key : '정보', label:'정보게시판'},
+  {key : '트로피', label:'트로피게시판'},
+  {key : 'Q&A', label:'Q&A게시판'},
+  {key : '인원모집', label:'인원모집게시판'},
+];
 
 const CommunityDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { communityId, title } = route.params;
-  //const [posts, setPosts] = useState([]);
   const [selectedTab, setSelectedTab] = useState('All');
-  const [posts, setPosts] = useState(mockData['All']);
+  const [posts, setPosts] = useState([]);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
-    // TODO: communityId 로 API 호출 or 데이터 가져오기
-    // fetch(`/api/communities/${communityId}/posts`).then(...)
-
-    // TODO: API 또는 로컬에서 북마크 상태 불러오기
-    // setIsBookmarked(fetchedValue);
-
     //첫 화면에서는 All
+    const all = mockPosts[communityId] || [];
+
     setSelectedTab('All');
-    setPosts(mockData['All']);
+    setPosts(all);
   }, [communityId]);
 
   const toggleBookmark = () => {
@@ -140,10 +57,18 @@ const CommunityDetailScreen = () => {
     setIsBookmarked(prev => !prev);
   };
 
-  const onSelectTab = (tab) => {
-    setSelectedTab(tab);
-    setPosts(mockData[tab] || []);
-  };
+  const onSelectTab = (tabKey) => {
+  setSelectedTab(tabKey);
+
+  const all = mockPosts[communityId] || [];
+
+  if (tabKey === 'All') {
+    setPosts(all);
+  } else {
+    setPosts(all.filter((p) => p.board === tabKey));
+  }
+};
+
 
   const handleWrite = () => {
     console.log('글쓰기 버튼 눌림');
@@ -173,19 +98,19 @@ return (
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.tabScroll}
         >
-          {TABS.map((tab) => {
-            const isSelected = tab === selectedTab;
+          {TABS.map(({key,label}) => {
+            const isSelected = key === selectedTab;
             return (
               <TouchableOpacity
-                key={tab}
-                onPress={() => onSelectTab(tab)}
+                key={key}
+                onPress={() => onSelectTab(key)}
                 style={[
                   styles.tabButton,
                   isSelected && styles.tabButtonActive
                 ]}
               >
                 <Text style={[styles.tabText, isSelected && styles.tabTextActive]}>
-                  {tab}
+                  {label}
                 </Text>
               </TouchableOpacity>
             );
@@ -204,14 +129,13 @@ return (
           return (
             <TouchableOpacity
               onPress={() => {
-                const postData =
-                  item.board === '트로피' ? { ...item, image: null } : item;   // ★
-                navigation.navigate('PostDetail', {
-                  post: postData,
+                navigation.navigate('PostDetail',{
+                  communityId,
+                  postId: item.id,
                   title,
                   communityTitle: title,
-                  onDelete: (id) =>
-                    setPosts((prev) => prev.filter((p) => p.id !==id)),
+                  onDelete: (id) => 
+                    setPosts((prev) => prev.filter((p) => p.id !== id)),
                 });
               }}
               activeOpacity={0.8}

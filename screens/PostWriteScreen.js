@@ -18,45 +18,7 @@ import Header from '../components/Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PrizeImg from '../assets/images/prize.png';
 import * as ImagePicker from 'expo-image-picker';
-
-/* ---- 예시 트로피 데이터 ---- */
-const sampleTrophies = [
-    {
-      id: 't1',
-      category: '챌보교섭단',
-      title: '스카이다이빙 하기',
-      createdAt: '2024.04.21',
-      achievedAt: '2025.02.14',
-    },
-    {
-      id: 't2',
-      category: '챌보교섭단',
-      title: '열기구 타기',
-      createdAt: '2024.04.21',
-      achievedAt: '2025.02.14',
-    },
-    {
-      id: 't3',
-      category: '배우구단',
-      title: '일본어 배우기',
-      createdAt: '2024.04.21',
-      achievedAt: '2025.02.14',
-    },
-    {
-        id: 't4',
-        category: '배우구단',
-        title: '일본어 배우기',
-        createdAt: '2024.04.21',
-        achievedAt: '2025.02.14',
-      },
-      {
-        id: 't5',
-        category: '배우구단',
-        title: '일본어 배우기',
-        createdAt: '2024.04.21',
-        achievedAt: '2025.02.14',
-      },
-  ];
+import { sampleTrophies } from '../mock/data';
 
 export default function PostWriteScreen() {
   const navigation = useNavigation();

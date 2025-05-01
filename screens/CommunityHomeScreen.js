@@ -28,6 +28,11 @@ const CommunityHomeScreen = () => {
     navigation.navigate('KeywordRegister');
   };
 
+  // 새 커뮤니티 개설
+  const onAddCommunity = () => {
+    navigation.navigate('CommunityCreate');
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header leftContent=''/>
@@ -74,8 +79,14 @@ const CommunityHomeScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* 전체 커뮤니티 */}
-        <Text style={styles.sectionTitle}>전체 커뮤니티</Text>
+          {/* 전체 커뮤니티 + 버튼 */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>전체 커뮤니티</Text>
+          <TouchableOpacity onPress={onAddCommunity} style={styles.addButton}>
+            <Ionicons name="add-circle" size={24} color="#FBA834" />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.card}>
           <TouchableOpacity 
             style={styles.menuItem}
