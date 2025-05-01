@@ -26,7 +26,7 @@ export default function EditInfoScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={28} color="#FBA834" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>정보 변경</Text>
+        <Text style={styles.headerTitle} >정보 변경</Text>
       </View>
 
       <View style={styles.form}>
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   backButton: {},
   headerTitle: {
     fontSize: 16,
-    color: '#fff',
+    color: '#FBA834',
     fontWeight: 'bold',
   },
   form: {

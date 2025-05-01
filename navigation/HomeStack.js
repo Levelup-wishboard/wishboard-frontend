@@ -10,6 +10,8 @@ import MainScreen from '../screens/MainScreen';
 import CommentPost from '../screens/CommentPostScreen';
 import MyPostsScreen from '../screens/MyPostsScreen';
 import LikedPostsScreen from '../screens/LikedPostsScreen';
+import AlamScreen from '../screens/AlamScreen';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +27,7 @@ export default function MypageStack() {
       <Stack.Screen name="CommentPost" component={CommentPost} />
       <Stack.Screen name="MyPosts" component={MyPostsScreen} />
       <Stack.Screen name="LikedPosts" component={LikedPostsScreen} />
+      <Stack.Screen name="Alam" component={AlamScreen} />
       
     </Stack.Navigator>
   );

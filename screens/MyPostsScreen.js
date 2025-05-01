@@ -21,7 +21,7 @@ export default function MyPostsScreen({ navigation }) {
       likes: 10,
       comments: 10,
       time: '18:30',
-      thumbnail: require('../assets/images/sky.png')
+      thumbnail: require('../assets/images/sky.png'),
     },
     {
       id: 2,
@@ -39,39 +39,66 @@ export default function MyPostsScreen({ navigation }) {
     },
   ];
 
+  const getLabelColor = (label) => {
+    switch (label) {
+      case '인원모집':
+        return '#FF9393';
+      case '정보':
+        return '#93DEFF';
+      case 'Q&A':
+        return '#93FFC9';
+      default:
+        return '#eee';
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color="#FBA834" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>댓글 단 글</Text>
-        <View style={{ width: 24 }} /> {/* 오른쪽 아이콘 여백 */}
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="chevron-back" size={24} color="#FBA834" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>내가 쓴 글</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <Ionicons name="notifications-outline" size={20} color="#FBA834" style={{ marginRight: 16 }} onPress={() => {navigation.navigate('Home', { screen: 'Alam' })}}/>
+          <Ionicons name="person-outline" size={20} color="#FBA834" onPress={() => {navigation.navigate('Home', { screen: 'Mypage' })}}/>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {posts.map((post) => (
           <View key={post.id} style={styles.card}>
-            <View style={styles.row}>
-              <View style={styles.badges}>
-                <Text style={styles.badgeGray}>{post.category}</Text>
-                <Text style={styles.badgeRedOrBlue}>{post.label}</Text>
+            <View style={styles.topRow}>
+              <View style={styles.badgeContainer}>
+                <View style={styles.badges}>
+                  <Text style={styles.badgeGray}>{post.category}</Text>
+                  <Text
+                    style={[
+                      styles.badgeColored,
+                      { backgroundColor: getLabelColor(post.label) },
+                    ]}
+                  >
+                    {post.label}
+                  </Text>
+                </View>
+                <Text style={styles.title}>{post.title}</Text>
               </View>
-
-              {post.thumbnail && (
+              {post.thumbnail ? (
                 <Image source={post.thumbnail} style={styles.thumbnail} />
+              ) : (
+                <View style={styles.thumbnailPlaceholder} />
               )}
             </View>
 
-            <Text style={styles.title}>{post.title}</Text>
             <View style={styles.meta}>
               <Text style={styles.author}>{post.author}</Text>
               {post.likes !== undefined && (
                 <>
-                  <Ionicons name="heart-outline" size={14} color="#555" />
+                  <Ionicons name="thumbs-up-outline" size={14} color="#555" />
                   <Text style={styles.iconText}>{post.likes}</Text>
-                  <Ionicons name="chatbubble-outline" size={14} color="#555" />
+                  <Ionicons name="chatbubble-outline" size={14} color="#555" style={{ marginLeft: 12 }} />
                   <Text style={styles.iconText}>{post.comments}</Text>
                   <Text style={styles.time}>{post.time}</Text>
                 </>
@@ -92,49 +119,75 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 24,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  headerTitle: { fontSize: 16, color: '#fff', fontWeight: 'bold' },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: { fontSize: 16, color:"#FBA834", fontWeight: 'bold' },
   content: { padding: 20 },
   card: {
     borderBottomWidth: 1,
     borderColor: '#eee',
     paddingVertical: 12,
   },
-  row: { flexDirection: 'row', justifyContent: 'space-between' },
-  badges: { flexDirection: 'row', gap: 6 },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  badgeContainer: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  badges: {
+    flexDirection: 'row',
+    gap: 6,
+    marginBottom: 6,
+  },
   badgeGray: {
     backgroundColor: '#eee',
     paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 6,
     fontSize: 10,
     color: '#333',
   },
-  badgeRedOrBlue: {
-    backgroundColor: '#FBA834', // or '#D8F3FF'
+  badgeColored: {
     paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 6,
     fontSize: 10,
-    color: '#fff', // or '#007A9E'
-  },
-  thumbnail: {
-    width: 50,
-    height: 50,
-    borderRadius: 6,
+    color: '#fff',
   },
   title: {
     fontSize: 14,
-    marginTop: 6,
     color: '#222',
+    flexWrap: 'wrap',
+  },
+  thumbnail: {
+    width: 60,
+    height: 60,
+    borderRadius: 6,
+  },
+  thumbnailPlaceholder: {
+    width: 60,
+    height: 60,
   },
   meta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 4,
+    marginTop: 8,
   },
-  author: { fontSize: 12, color: '#555', marginRight: 6 },
+  author: { fontSize: 12, color: '#555', marginRight: 10 },
   iconText: { fontSize: 12, color: '#555' },
-  time: { fontSize: 12, color: '#555' },
+  time: { fontSize: 12, color: '#555', marginLeft: 12 },
 });

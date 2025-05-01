@@ -55,45 +55,50 @@ export default function CommentPostsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color="#FBA834" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>댓글 단 글</Text>
-        <View style={{ width: 24 }} />
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="chevron-back" size={24} color="#FBA834" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>댓글 단 글</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <Ionicons name="notifications-outline" size={20} color="#FBA834" style={{ marginRight: 16 }} onPress={() => {navigation.navigate('Home', { screen: 'Alam' })}}/>
+          <Ionicons name="person-outline" size={20} color="#FBA834" onPress={() => {navigation.navigate('Home', { screen: 'Mypage' })}}/>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {posts.map((post) => (
           <View key={post.id} style={styles.card}>
-            {/* 배지 줄 */}
-            <View style={styles.badges}>
-              <Text style={styles.badgeGray}>{post.category}</Text>
-              <Text
-                style={[
-                  styles.badgeColored,
-                  { backgroundColor: getLabelColor(post.label) },
-                ]}
-              >
-                {post.label}
-              </Text>
-            </View>
-
-            {/* 제목 + 썸네일 한 줄 */}
-            <View style={styles.titleRow}>
-              <Text style={styles.title}>{post.title}</Text>
-              {post.thumbnail && (
+            <View style={styles.topRow}>
+              <View style={styles.badgeContainer}>
+                <View style={styles.badges}>
+                  <Text style={styles.badgeGray}>{post.category}</Text>
+                  <Text
+                    style={[
+                      styles.badgeColored,
+                      { backgroundColor: getLabelColor(post.label) },
+                    ]}
+                  >
+                    {post.label}
+                  </Text>
+                </View>
+                <Text style={styles.title}>{post.title}</Text>
+              </View>
+              {post.thumbnail ? (
                 <Image source={post.thumbnail} style={styles.thumbnail} />
+              ) : (
+                <View style={styles.thumbnailPlaceholder} />
               )}
             </View>
 
-            {/* 작성자 및 메타 정보 */}
             <View style={styles.meta}>
               <Text style={styles.author}>{post.author}</Text>
               {post.likes !== undefined && (
                 <>
-                  <Ionicons name="heart-outline" size={14} color="#555" />
+                  <Ionicons name="thumbs-up-outline" size={14} color="#555" />
                   <Text style={styles.iconText}>{post.likes}</Text>
-                  <Ionicons name="chatbubble-outline" size={14} color="#555" />
+                  <Ionicons name="chatbubble-outline" size={14} color="#555" style={{ marginLeft: 12 }} />
                   <Text style={styles.iconText}>{post.comments}</Text>
                   <Text style={styles.time}>{post.time}</Text>
                 </>
@@ -114,17 +119,34 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 24,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  headerTitle: { fontSize: 16, color: '#fff', fontWeight: 'bold' },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: { fontSize: 16, color:"#FBA834", fontWeight: 'bold' },
   content: { padding: 20 },
   card: {
     borderBottomWidth: 1,
     borderColor: '#eee',
     paddingVertical: 12,
   },
-
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  badgeContainer: {
+    flex: 1,
+    paddingRight: 12,
+  },
   badges: {
     flexDirection: 'row',
     gap: 6,
@@ -135,43 +157,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    fontSize: 13,
+    fontSize: 10,
     color: '#333',
   },
   badgeColored: {
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    fontSize: 13,
-    color: '#000000',
-  },
-
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 8,
+    fontSize: 10,
+    color: '#fff',
   },
   title: {
     fontSize: 14,
     color: '#222',
-    flex: 1,
     flexWrap: 'wrap',
-    paddingRight: 8,
   },
   thumbnail: {
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
     borderRadius: 6,
   },
-
+  thumbnailPlaceholder: {
+    width: 60,
+    height: 60,
+  },
   meta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 2,
+    marginTop: 8,
   },
-  author: { fontSize: 12, color: '#555', marginRight: 6 },
+  author: { fontSize: 12, color: '#555', marginRight: 10 },
   iconText: { fontSize: 12, color: '#555' },
-  time: { fontSize: 12, color: '#555' },
+  time: { fontSize: 12, color: '#555', marginLeft: 12 },
 });

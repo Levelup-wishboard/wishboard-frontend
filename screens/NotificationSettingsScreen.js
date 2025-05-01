@@ -26,14 +26,14 @@ export default function NotificationSettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+       {/* 헤더 */}
+       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={28} color="#FBA834" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>알림 설정</Text>
-        <View style={{ width: 28 }} />
+        <Text style={styles.headerTitle} >알림 설정</Text>
       </View>
+
 
       <ScrollView contentContainerStyle={styles.content}>
         {switches.map((item, index) => (
@@ -68,13 +68,13 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#2F336A',
     paddingTop: 48,
-    paddingBottom: 20,
+    paddingBottom: 16,
     paddingHorizontal: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 12,
   },
-  headerText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  headerTitle: { fontSize: 16, color:"#FBA834", fontWeight: 'bold' },
   content: { paddingHorizontal: 0, paddingTop: 10 },
 
   itemContainer: {
@@ -105,8 +105,8 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    backgroundColor: '#FBA834', // 오렌지
-    color: '#fff',
+    backgroundColor: '#93DEFF', 
+    color: '#000000',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
