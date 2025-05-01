@@ -43,11 +43,9 @@ export default function PopularBucketListScreen({ navigation }) {
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>인기버킷리스트</Text>
-        <View style={styles.iconRow}>
-          <Ionicons name="notifications-outline" size={22} color="#FBA834" style={styles.icon} />
-          <Ionicons name="person-outline" size={22} color="#FBA834" style={styles.icon} />
+
         </View>
-      </View>
+      
 
       {/* 전체 콘텐츠 스크롤뷰 */}
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
@@ -73,19 +71,19 @@ export default function PopularBucketListScreen({ navigation }) {
 
         {/* 리스트 */}
         <View style={{ paddingHorizontal: 16, marginTop: 8 }}>
-          {filteredList.map(item => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.bucketItem}
-              onPress={() => console.log('Item clicked')}
-            >
-              <View style={[styles.tagBox, { backgroundColor: getTagColor(item.tag) }]}>
-                <Text style={styles.tagText}>{item.tag}</Text>
-              </View>
-              <Text style={styles.bucketText}>{item.text}</Text>
-              <Ionicons name="add-circle" size={20} color="#FBA834" style={{ marginLeft: 'auto' }} />
-            </TouchableOpacity>
-          ))}
+        {filteredList.map(item => (
+  <TouchableOpacity
+    key={item.id}
+    style={styles.bucketItem}
+    onPress={() => navigation.navigate('BucketList', { screen: 'BucketListAdd' })}
+  >
+    <View style={[styles.tagBox, { backgroundColor: getTagColor(item.tag) }]}>
+      <Text style={styles.tagText}>{item.tag}</Text>
+    </View>
+    <Text style={styles.bucketText}>{item.text}</Text>
+    <Ionicons name="add-circle" size={20} color="#FBA834" style={{ marginLeft: 'auto' }} />
+  </TouchableOpacity>
+))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -102,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#2F327D',
     padding: 12,
-    justifyContent: 'space-between',
+    
   },
   headerTitle: {
     color: '#fff',

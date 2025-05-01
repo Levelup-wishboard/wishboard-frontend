@@ -76,7 +76,8 @@ export default function HomeScreen() {
                 <Text style={styles.tagText}>{item.tag}</Text>
               </View>
               <Text style={styles.bucketText}>{item.text}</Text>
-              <TouchableOpacity style={styles.plusButton}>
+              <TouchableOpacity style={styles.plusButton}
+              onPress={() => navigation.navigate('BucketList', { screen: 'BucketListAdd' })}>
                 <Ionicons name="add" size={16} color="#fff" />
               </TouchableOpacity>
             </View>
@@ -87,19 +88,28 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>최근 커뮤니티 글</Text>
           {recentPosts.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.postCard}>
-              <View style={styles.labelRow}>
-                <View style={styles.labelBox}>
-                  <Text style={styles.labelText}>{item.detail}</Text>
-                </View>
-                <View style={[styles.labelBox, { backgroundColor: BOARD_COLORS[item.board] }]}>
-                  <Text style={styles.labelText}>{item.board}</Text>
-                </View>
-              </View>
-              <Text style={styles.postTitle}>{item.title}</Text>
-              <Text style={styles.postAuthor}>{item.author}</Text>
-            </TouchableOpacity>
-          ))}
+  <TouchableOpacity
+  key={index}
+  style={styles.postCard}
+  onPress={() =>
+    navigation.navigate('Community', {
+      screen: 'PostDetail',
+      params: { post: item }, // post 데이터 전달
+    })
+  }
+>
+    <View style={styles.labelRow}>
+      <View style={styles.labelBox}>
+        <Text style={styles.labelText}>{item.detail}</Text>
+      </View>
+      <View style={[styles.labelBox, { backgroundColor: BOARD_COLORS[item.board] }]}>
+        <Text style={styles.labelText}>{item.board}</Text>
+      </View>
+    </View>
+    <Text style={styles.postTitle}>{item.title}</Text>
+    <Text style={styles.postAuthor}>{item.author}</Text>
+  </TouchableOpacity>
+))}
         </View>
       </ScrollView>
     </SafeAreaView>
