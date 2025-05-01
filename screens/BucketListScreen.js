@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native'; // ✅ 추가
 import { getTagColor } from '../constants/Colors';
 
 const initialData = [
@@ -23,11 +24,12 @@ const initialData = [
 
 export default function BucketListScreen() {
   const [pinnedIds, setPinnedIds] = useState([]);
+  const navigation = useNavigation(); // ✅ 추가
 
   const togglePin = (id) => {
     setPinnedIds((prev) => {
       if (prev.includes(id)) return prev.filter((pid) => pid !== id);
-      if (prev.length >= 3) return prev; // 최대 3개 제한
+      if (prev.length >= 3) return prev;
       return [...prev, id];
     });
   };
@@ -40,8 +42,8 @@ export default function BucketListScreen() {
   const sortedList = [...initialData].sort((a, b) => {
     const aPinned = pinnedIds.includes(a.id);
     const bPinned = pinnedIds.includes(b.id);
-    if (aPinned !== bPinned) return bPinned - aPinned; // 고정된 것 먼저
-    return parseDday(a.dday) - parseDday(b.dday); // 작은 D-day 먼저
+    if (aPinned !== bPinned) return bPinned - aPinned;
+    return parseDday(a.dday) - parseDday(b.dday);
   });
 
   return (
@@ -84,7 +86,10 @@ export default function BucketListScreen() {
         ))}
       </ScrollView>
 
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate('BucketListAdd')} // ✅ 연결
+      >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
     </SafeAreaView>
@@ -152,4 +157,3 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
 });
-
