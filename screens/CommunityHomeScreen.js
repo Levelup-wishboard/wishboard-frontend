@@ -24,9 +24,14 @@ const CommunityHomeScreen = () => {
   };
 
   const onAddKeyword = () => {
-    // TODO: 키워드 추가 로직 (모달 열기 등)
     console.log('알림 키워드 추가');
+    navigation.navigate('KeywordRegister');
   };
+
+  // 새 커뮤니티 개설
+  const onAddCommunity = () => {
+    navigation.navigate('CommunityCreate');
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -39,6 +44,7 @@ const CommunityHomeScreen = () => {
             style={styles.searchInput}
             placeholder="게시판을 입력해주세요"
             placeholderTextColor="#999"
+            onFocus={() => navigation.navigate('CommunitySearch')}
           />
         </View>
       </View>
@@ -73,8 +79,14 @@ const CommunityHomeScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* 전체 커뮤니티 */}
-        <Text style={styles.sectionTitle}>전체 커뮤니티</Text>
+          {/* 전체 커뮤니티 + 버튼 */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>전체 커뮤니티</Text>
+          <TouchableOpacity onPress={onAddCommunity} style={styles.addButton}>
+            <Ionicons name="add-circle" size={24} color="#FBA834" />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.card}>
           <TouchableOpacity 
             style={styles.menuItem}
