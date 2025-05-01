@@ -3,8 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import TrophyScreen from '../screens/TrophyScreen';
 import CommunityStack from './CommunityStack';
-import CommunityHomeScreen from '../screens/CommunityHomeScreen';
-import HomeStack from './HomeStack'; // ✅ 변경된 부분
+import HomeStack from './HomeStack';
+import BucketListScreen from '../screens/BucketListScreen'; 
 
 const Tab = createBottomTabNavigator();
 
@@ -32,7 +32,7 @@ export default function AppNavigator() {
       })}
     >
       <Tab.Screen name="HomeTab" component={HomeStack} />
-      <Tab.Screen name="BucketList" component={() => null} />
+      <Tab.Screen name="BucketList" component={BucketListScreen} /> 
       <Tab.Screen name="Community" component={CommunityStack} />
       <Tab.Screen name="Trophy" component={TrophyScreen} />
     </Tab.Navigator>
