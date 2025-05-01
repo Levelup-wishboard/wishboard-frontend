@@ -1,21 +1,19 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import TrophyScreen from '../screens/TrophyScreen';
 import CommunityStack from './CommunityStack';
 import CommunityHomeScreen from '../screens/CommunityHomeScreen';
+import MainScreen from '../screens/MainScreen';
+import Mypage from './HomeStack';
 
 
 //  화면별 임시 컴포넌트 
 function HomeScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>홈 화면</Text>
-    </View>
-  );
+  return <MainScreen />
 }
+
 
 function BucketListScreen() {
   return (
@@ -28,6 +26,7 @@ function BucketListScreen() {
 function CommunityScreen() {
   return <CommunityHomeScreen />;
 }
+
 
 // function TrophyScreen() {
   // return (
@@ -67,10 +66,12 @@ export default function AppNavigator() {
         tabBarShowLabel: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: '홈' }} />
+      <Tab.Screen name="Home" component={Mypage} options={{ title: '홈' }}/>
       <Tab.Screen name="BucketList" component={BucketListScreen} options={{ title: '버킷리스트' }} />
       <Tab.Screen name="Community" component={CommunityStack} options={{ title: '커뮤니티' }} />
       <Tab.Screen name="Trophy" component={TrophyScreen} options={{ title: '트로피' }} />
+  
     </Tab.Navigator>
   );
 }
+

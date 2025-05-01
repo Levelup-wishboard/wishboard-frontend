@@ -2,7 +2,6 @@ import React,{ useState } from 'react';
 import { View, StyleSheet , StatusBar} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './navigation/AppNavigator';
-import Header from './components/Header';
 
 export default function App() {
   const [headerTitle, setHeaderTitle] = useState('홈');
