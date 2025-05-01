@@ -9,9 +9,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 import { getTagColor, BOARD_COLORS } from '../constants/Colors';
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -26,7 +29,9 @@ export default function HomeScreen() {
           </View>
           <Text style={styles.title}>레벨업 님의 WISHBOARD</Text>
           <Text style={styles.subtitle}>한 걸음씩 쌓아가는 도전, 함께 이루어가요!</Text>
+
           <View style={styles.challengeRow}>
+            {/* 도전 리스트 */}
             <View style={styles.challengeList}>
               {challengeItems.map((item, index) => (
                 <View key={index} style={styles.challengeItem}>
@@ -43,12 +48,16 @@ export default function HomeScreen() {
                 </View>
               ))}
             </View>
+
+            {/* 트로피 섹션 */}
             <View style={styles.trophySection}>
-              <View style={styles.trophyTextWrapper}>
-                <Text style={styles.trophyScore}>2</Text>
-                <Text style={styles.trophyTotal}>/10</Text>
-              </View>
-              <Image source={require('../assets/images/trophy.png')} style={styles.trophyImage} />
+              <TouchableOpacity onPress={() => navigation.navigate('Trophy')}>
+                <View style={styles.trophyTextWrapper}>
+                  <Text style={styles.trophyScore}>2</Text>
+                  <Text style={styles.trophyTotal}>/10</Text>
+                </View>
+                <Image source={require('../assets/images/trophy.png')} style={styles.trophyImage} />
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -57,7 +66,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>인기 버킷리스트</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Popular')}>
               <Text style={styles.moreButton}>더보기 &gt;</Text>
             </TouchableOpacity>
           </View>
@@ -78,7 +87,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>최근 커뮤니티 글</Text>
           {recentPosts.map((item, index) => (
-            <View key={index} style={styles.postCard}>
+            <TouchableOpacity key={index} style={styles.postCard}>
               <View style={styles.labelRow}>
                 <View style={styles.labelBox}>
                   <Text style={styles.labelText}>{item.detail}</Text>
@@ -89,7 +98,7 @@ export default function HomeScreen() {
               </View>
               <Text style={styles.postTitle}>{item.title}</Text>
               <Text style={styles.postAuthor}>{item.author}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
@@ -117,7 +126,14 @@ const recentPosts = [
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
   container: { paddingBottom: 20 },
-  header: { backgroundColor: '#2F327D', paddingTop: 30, paddingHorizontal: 20, paddingBottom: 20, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
+  header: {
+    backgroundColor: '#2F327D',
+    paddingTop: 30,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   logo: { width: 40, height: 40, resizeMode: 'contain' },
   iconRow: { flexDirection: 'row', gap: 16 },
@@ -128,27 +144,63 @@ const styles = StyleSheet.create({
   challengeList: { flex: 1 },
   challengeItem: { marginBottom: 8 },
   ddayRow: { flexDirection: 'row', alignItems: 'center' },
-  ddayText: { color: '#000', backgroundColor: '#fff', fontSize: 10, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, marginRight: 6 },
+  ddayText: {
+    color: '#000',
+    backgroundColor: '#fff',
+    fontSize: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginRight: 6,
+  },
   tag: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
   tagText: { color: '#000', fontSize: 10 },
   profileRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   profileImage: { width: 24, height: 24, borderRadius: 12, marginRight: 6 },
   challengeText: { color: '#fff', fontSize: 13 },
   trophySection: { alignItems: 'center', justifyContent: 'center', marginLeft: 12 },
-  trophyTextWrapper: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: 4 },
+  trophyTextWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
   trophyScore: { fontSize: 28, fontWeight: 'bold', color: '#FBA834' },
   trophyTotal: { fontSize: 14, marginLeft: 4, color: '#ffffff' },
   trophyImage: { width: 90, height: 90, resizeMode: 'contain' },
   section: { marginTop: 24, paddingHorizontal: 20 },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   sectionTitle: { fontSize: 16, fontWeight: 'bold' },
   moreButton: { color: '#333', fontSize: 12 },
   bucketRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   bucketText: { flex: 1, marginLeft: 10, fontSize: 14, color: '#000' },
-  plusButton: { backgroundColor: '#FBA834', width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  postCard: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#ddd', paddingVertical: 12 },
+  plusButton: {
+    backgroundColor: '#FBA834',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  postCard: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingVertical: 12,
+  },
   labelRow: { flexDirection: 'row', marginBottom: 6 },
-  labelBox: { backgroundColor: '#ddd', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginRight: 6 },
+  labelBox: {
+    backgroundColor: '#ddd',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginRight: 6,
+  },
   labelText: { fontSize: 10, color: '#000' },
   postTitle: { fontSize: 14, color: '#000', marginBottom: 4 },
   postAuthor: { fontSize: 12, color: '#666' },
