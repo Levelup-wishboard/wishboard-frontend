@@ -79,8 +79,14 @@ export default function TropyDetailPage2({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  wrapper: { flex: 1, backgroundColor: '#fff' },
-  container: { padding: 20, paddingBottom: 100 },
+  wrapper: { 
+    flex: 1, 
+    backgroundColor: '#fff' 
+},
+  container: { 
+    padding: 20, 
+    paddingBottom: 100 
+},
   header: {
     backgroundColor: '#333A73',
     padding: 15,
@@ -91,10 +97,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backButton: { alignSelf: 'flex-start' },
-  backIcon: { width: 20, height: 20 },
-  headerText: { flex: 1, marginLeft: 10 },
-  badgeRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  backButton: { 
+    alignSelf: 'flex-start' 
+},
+  backIcon: { 
+    width: 20, 
+    height: 20 
+},
+  headerText: { 
+    flex: 1, 
+    marginLeft: 10 
+},
+  badgeRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 6 
+},
   badge: {
     color: '#000',
     paddingVertical: 2,
@@ -105,8 +123,16 @@ const styles = StyleSheet.create({
     height: 15,
     width: 62,
   },
-  title: { fontSize: 16, color: '#fff', fontWeight: 'bold' },
-  date: { color: '#fff', fontSize: 12, marginTop: 2 },
+  title: { 
+    fontSize: 16, 
+    color: '#fff', 
+    fontWeight: 'bold' 
+    },
+  date: { 
+    color: '#fff', 
+    fontSize: 12,
+     marginTop: 2 
+    },
   dateLabel: {
     fontSize: 14,
     marginBottom: 10,
@@ -123,7 +149,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  image: { width: '100%', height: '100%', resizeMode: 'contain' },
+  image: { 
+    width: '100%', 
+    height: '100%', 
+    resizeMode: 'contain' 
+},
   textContent: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -149,10 +179,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
   },
-  navButtonText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  navButtonText: { 
+    color: '#fff', 
+    fontSize: 12, 
+    fontWeight: 'bold' 
+},
   disabled: {
     backgroundColor: '#ccc',
   },
-  trophy: { width: 64, height: 64 },
-  share: { width: 20, height: 20, marginTop: 20 },
+  trophy: {
+     width: 64, 
+     height: 64 
+    },
+  share: { 
+    width: 20, 
+    height: 20, 
+    marginTop: 20 
+},
 });

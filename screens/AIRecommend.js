@@ -22,7 +22,6 @@ const bucketListData = [
     comments: 10,
     time: '18:30',
   },
-  // ... 추가 항목
 ];
 
 const AIRecommend = ({ navigation }) => {
