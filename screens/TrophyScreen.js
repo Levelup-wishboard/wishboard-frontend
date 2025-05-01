@@ -1,4 +1,4 @@
-// screens/TrophytScreen.js
+// screens/TrophyScreen.js
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 
@@ -6,7 +6,7 @@ const Trophys = [
   {
     id: 1,
     category: '해보고싶다',
-    color: '#00AEEF',
+    color: '#93DEFF',
     title: '열기구 타기',
     createdAt: '2024.04.21',
     targetDate: '2025.02.14',
@@ -14,56 +14,56 @@ const Trophys = [
   {
     id: 2,
     category: '배우고싶다',
-    color: '#FF6B6B',
+    color: '#FF9393',
     title: '일본어 자격증따기',
     createdAt: '2024.01.17',
     targetDate: '2025.01.24',
   },{
     id: 3,
     category: '배우고싶다',
-    color: '#FF6B6B',
+    color: '#FF9393',
     title: '일본어 자격증따기',
     createdAt: '2024.01.17',
     targetDate: '2025.01.24',
   },{
     id: 4,
     category: '배우고싶다',
-    color: '#FF6B6B',
+    color: '#FF9393',
     title: '일본어 자격증따기',
     createdAt: '2024.01.17',
     targetDate: '2025.01.24',
   },{
     id: 5,
     category: '배우고싶다',
-    color: '#FF6B6B',
+    color: '#FF9393',
     title: '일본어 자격증따기',
     createdAt: '2024.01.17',
     targetDate: '2025.01.24',
   },{
     id: 6,
     category: '배우고싶다',
-    color: '#FF6B6B',
+    color: '#FF9393',
     title: '일본어 자격증따기',
     createdAt: '2024.01.17',
     targetDate: '2025.01.24',
   },{
     id: 7,
     category: '배우고싶다',
-    color: '#FF6B6B',
+    color: '#FF9393',
     title: '일본어 자격증따기',
     createdAt: '2024.01.17',
     targetDate: '2025.01.24',
   },{
     id: 8,
     category: '배우고싶다',
-    color: '#FF6B6B',
+    color: '#FF9393',
     title: '일본어 자격증따기',
     createdAt: '2024.01.17',
     targetDate: '2025.01.24',
   },
 ];
 
-export default function TrophytScreen() {
+export default function TrophyScreen({ navigation }) {
   return (
     <View style={styles.container1}>
       {/* 상단 진행도 */}
@@ -84,7 +84,7 @@ export default function TrophytScreen() {
                 />
                 <Text style={styles.buttonText}>명예의 전당 보러가기</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AIRecommend')}>
                 <Image
                 source={require('../assets/images/good.png')}
                 style={styles.good}
@@ -97,17 +97,19 @@ export default function TrophytScreen() {
       <ScrollView style={styles.container2}>
       {/* 트로피 리스트 Db에서 가져오기*/}
         {Trophys.map(Trophy => (
-            <TouchableOpacity key={Trophy.id} style={styles.card} >
+            <TouchableOpacity key={Trophy.id} style={styles.card} onPress={() => navigation.navigate('TrophyDetailPage1', { trophy: Trophy })}>
             <Image
                 source={require('../assets/images/trophy.png')}
                 style={styles.cardTrophy}
             />
             <View style={styles.cardContent}>
                 {/* 세부페이지만들어야함함 */}
-                <Text style={[styles.badge, { backgroundColor: Trophy.color }]} onPress={()=>{navigation.navigate('DetailPage')}}>
-                {Trophy.category}
-                </Text>
-                <Text style={styles.title}>{Trophy.title}</Text>
+                <View style={styles.row}>
+                  <Text style={[styles.badge, { backgroundColor: Trophy.color }]}>
+                    {Trophy.category}
+                  </Text>
+                  <Text style={styles.title}>{Trophy.title}</Text>
+                </View>
                 <Text style={styles.date}>작성일: {Trophy.createdAt}</Text>
                 <Text style={styles.date}>달성일: {Trophy.targetDate}</Text>
             </View>
@@ -119,12 +121,38 @@ export default function TrophytScreen() {
 }
 
 const styles = StyleSheet.create({
-  container1: { flex: 1, backgroundColor: '#333A73', height: 174},
-  box: {alignItems: 'center',paddingLeft:20},
-  container2: { flex: 1, backgroundColor: 'white'},
-  topSection: { alignItems: 'center', marginBottom: 20, marginTop: 20, flexDirection: 'row', paddingLeft:50},
-  trophy: { width: 84, height: 84, marginBottom: 8 },
-  progressText: { textAlign: 'center', width: 84, fontSize: 20, fontWeight: 'bold', marginBottom: 12, color: 'white'},
+  container1: 
+  { flex: 1, 
+    backgroundColor: '#333A73', 
+    height: 174
+  },
+  box: 
+  {alignItems: 'center'
+  },
+  container2: 
+  { flex: 1, 
+    backgroundColor: 'white'
+  },
+  topSection: 
+  { alignItems: 'center', 
+    marginBottom: 10, 
+    marginTop: 10, 
+    flexDirection: 'row', 
+    paddingLeft:30
+  },
+  trophy: 
+  { width: 84, 
+    height: 84,
+     marginBottom: 8 
+  },
+  progressText: 
+  { textAlign: 'center', 
+    width: 84, 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    marginBottom: 12, 
+    color: 'white'
+  },
   button: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -132,32 +160,67 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 12,
-    marginVertical: 6,
+    marginVertical: 10,
     width: 230,
     height: 62,
     marginLeft:30 
   },
-  buttonText: { color: '#fff', textAlign: 'center', fontSize: 12, marginLeft: 15},
+  buttonText: 
+  { color:'rgb(255, 255, 255)', 
+    textAlign: 'center', 
+    fontSize: 12, 
+    marginLeft: 10
+  },
   card: {
     flexDirection: 'row',
-    padding: 16,
+    padding: 5,
     borderBottomWidth: 1,
     borderColor: '#eee',
     alignItems: 'flex-start',
   },
-  cardTrophy: { width: 84, height: 84, marginRight: 12, marginTop: 4 },
-  cardContent: { flex: 1 },
+  cardTrophy: 
+  { width: 84, 
+    height: 84, 
+    marginRight: 12, 
+    marginTop: 4 
+  },
+  cardContent: 
+  { flex: 1 
+
+  },
   badge: {
-    color: '#fff',
+    color:'rgb(0, 0, 0)',
     paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 8,
     alignSelf: 'flex-start',
-    fontSize: 12,
+    fontSize: 10,
+    height: 15,
+    width:62,
+    textAlign: 'center', 
+    marginTop:5
+  },
+  title: 
+  { fontSize: 16, 
+    fontWeight: 'bold',
+     marginBottom: 4, 
+     marginLeft: 10
+    },
+  date: 
+  { fontSize: 12,
+
+  },
+  trophys:
+  {width: 67, 
+    height: 28
+  },
+  good: 
+  {width: 44, 
+  height: 44
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 4,
   },
-  title: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
-  date: { fontSize: 12, color: '#555' },
-  trophys:{width: 67, height: 28},
-  good: {width: 44, height: 44},
 });

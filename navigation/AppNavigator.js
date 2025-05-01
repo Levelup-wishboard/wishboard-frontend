@@ -6,7 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import TrophyScreen from '../screens/TrophyScreen';
 import CommunityStack from './CommunityStack';
 import CommunityHomeScreen from '../screens/CommunityHomeScreen';
-
+import TrophyStack from './TrophyStack';
 
 //  화면별 임시 컴포넌트 
 function HomeScreen() {
@@ -70,7 +70,8 @@ export default function AppNavigator() {
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: '홈' }} />
       <Tab.Screen name="BucketList" component={BucketListScreen} options={{ title: '버킷리스트' }} />
       <Tab.Screen name="Community" component={CommunityStack} options={{ title: '커뮤니티' }} />
-      <Tab.Screen name="Trophy" component={TrophyScreen} options={{ title: '트로피' }} />
+      <Tab.Screen name="Trophy" component={TrophyStack} options={{ title: '트로피' }} />
+      
     </Tab.Navigator>
   );
 }
