@@ -76,7 +76,8 @@ export default function HomeScreen() {
                 <Text style={styles.tagText}>{item.tag}</Text>
               </View>
               <Text style={styles.bucketText}>{item.text}</Text>
-              <TouchableOpacity style={styles.plusButton}>
+              <TouchableOpacity style={styles.plusButton}
+              onPress={() => navigation.navigate('BucketList', { screen: 'BucketListAdd' })}>
                 <Ionicons name="add" size={16} color="#fff" />
               </TouchableOpacity>
             </View>
