@@ -14,18 +14,19 @@ import Header from '../components/Header';
 /* ---------------- 고정 데이터 ---------------- */
 // community_diversity (상위 분류)
 const COMMUNITIES = [
-  { id: 'extreme',  name: '익스트림 스포츠' },
-  { id: 'indoor',   name: '실내활동' },
+  { id: 'extreme-sports',  name: '익스트림 스포츠' },
+  { id: 'indoor-activities',   name: '실내활동' },
   { id: 'study',    name: '학업' },
   { id: 'health',   name: '피트니스•건강' },
 ];
 
 // type (하위 분류)
 const TYPES = [
-  { id: 't1', communityId: 'extreme', name: '수상스키' },
-  { id: 't2', communityId: 'extreme', name: '번지점프' },
-  { id: 't3', communityId: 'indoor',  name: '피아노' },
-  { id: 't4', communityId: 'health',  name: '크로스핏' },
+  { id: 't1', communityId: 'extreme-sports', name: '수상스키' },
+  { id: 't2', communityId: 'extreme-sports', name: '번지점프' },
+  { id: 't3', communityId: 'indoor-activities',  name: '피아노' },
+  { id: 't4', communityId: 'study',  name: '공부' },
+  { id: 't5', communityId: 'health',  name: '크로스핏' },
 ];
 
 /* ---------------- 헬퍼 ---------------- */
