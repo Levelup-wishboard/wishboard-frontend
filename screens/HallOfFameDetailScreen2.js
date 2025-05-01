@@ -15,12 +15,12 @@ const diaryData = [
   {
     date: '2024.04.23',
     image: require('../assets/images/trophy.png'),
-    message: '아자아자---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------!',
+    message: '아자아자---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------!',
   },
 ];
 
-export default function TropyDetailPage2({ route, navigation }) {
-  const { trophy, index = 0 } = route.params;
+export default function HallOfFameDetailScreen2({ route, navigation }) {
+  const { origin, name, trophy, index = 0 } = route.params;
   const entry = diaryData[index];
 
   return (
@@ -35,15 +35,21 @@ export default function TropyDetailPage2({ route, navigation }) {
             <Image source={require('../assets/images/trophy.png')} style={styles.trophy} />
 
             <View style={styles.headerText}>
-            <View style={styles.badgeRow}>
-                <Text style={[styles.badge, { backgroundColor: trophy.color }]}>{trophy.category}</Text>
-                <Text style={styles.title}>{trophy.title}</Text>
+                <Text style={styles.firstLine}>{name}님이 달성한 버킷리스트</Text>
+                <View style={styles.badgeRow}>
+                    <Text style={[styles.badge, { backgroundColor: trophy.color }]}>{trophy.category}</Text>
+                    <Text style={styles.title}>{trophy.title}</Text>
+                </View>
+                <Text style={styles.date}>작성일: {trophy.createdAt}</Text>
+                <View style={styles.bottomBox}>
+                    <Text style={styles.date}>달성일: {trophy.targetDate}</Text>
+                        {origin === 'ai' && (
+                    <TouchableOpacity style={styles.aiButton} onPress={() => console.log('AI 버튼 눌림')}>
+                        <Text style={styles.aiButtonText}>목표 추가하기</Text>
+                      </TouchableOpacity>
+                  )}
+                </View>
             </View>
-            <Text style={styles.date}>작성일: {trophy.createdAt}</Text>
-            <Text style={styles.date}>달성일: {trophy.targetDate}</Text>
-            </View>
-
-            <Image source={require('../assets/images/share.png')} style={styles.share} />
         </View>
       </View>
 
@@ -69,7 +75,7 @@ export default function TropyDetailPage2({ route, navigation }) {
         <TouchableOpacity
           disabled={index === diaryData.length - 1}
           style={[styles.navButton, index === diaryData.length - 1 && styles.disabled]}
-          onPress={() => navigation.push('TropyDetailPage2', { trophy, index: index + 1 })}
+          onPress={() => navigation.push('HallOfFameDetailScreen2', { origin, name, trophy, index: index + 1 })}
         >
           <Text style={styles.navButtonText}>{'다음 페이지 >'}</Text>
         </TouchableOpacity>
@@ -191,9 +197,27 @@ backButton: {
      width: 64, 
      height: 64 
     },
-  share: { 
-    width: 20, 
-    height: 20, 
-    marginTop: 20 
-},
+    firstLine: {
+      color: 'white',
+      fontSize: 14,
+      marginBottom: 4,
+    },
+    aiButton: {
+      backgroundColor: '#FBA834',
+      marginLeft: 50,
+      borderRadius: 8,
+      alignItems: 'center',
+      width:100,
+      height:25,
+      justifyContent: 'center',
+      alignItems: 'center', 
+    },
+    aiButtonText: {
+      color: '#fff',
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
+    bottomBox:{
+      flexDirection: 'row',
+    },
 });

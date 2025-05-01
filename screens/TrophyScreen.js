@@ -77,12 +77,13 @@ export default function TrophyScreen({ navigation }) {
             />
         </View>
         <View style={styles.box}>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HallOfFameScreen')}>
                 <Image
                 source={require('../assets/images/trophys.png')}
                 style={styles.trophys}
                 />
-                <Text style={styles.buttonText}>명예의 전당 보러가기</Text>
+                <Text style={styles.buttonText }>
+                  명예의 전당 보러가기</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AIRecommend')}>
                 <Image

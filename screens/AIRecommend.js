@@ -27,7 +27,14 @@ const bucketListData = [
 const AIRecommend = ({ navigation }) => {
   const renderItem = ({ item }) => (
     // 이동페이지 수정해야함.
-    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('TrophyDetailPage1', { trophy: item })}>
+    <TouchableOpacity style={styles.card} onPress={() =>
+      navigation.navigate('HallOfFameDetailScreen', {
+        name: item.author,
+        userId: item.id,
+        postId: item.id, 
+        origin: 'ai', 
+      })
+    }>
       <Image source={item.image} style={styles.thumbnail} />
       <View style={styles.cardContent}>
         <View style={styles.tag}>
