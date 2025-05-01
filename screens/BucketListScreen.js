@@ -9,22 +9,22 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native'; // ✅ 추가
+import { useNavigation } from '@react-navigation/native';
 import { getTagColor } from '../constants/Colors';
 
 const initialData = [
-  { id: 1, dday: 'D-30', tag: '배우고싶다', image: require('../assets/images/profile1.png'), text: '드럼 배우기' },
-  { id: 2, dday: 'D-176', tag: '해보고싶다', image: require('../assets/images/profile2.png'), text: '스카이다이빙' },
-  { id: 3, dday: '언젠가', tag: '되고싶다', image: require('../assets/images/profile3.png'), text: '베스트셀러작가 되기' },
-  { id: 4, dday: 'D-46', tag: '갖고싶다', image: require('../assets/images/profile1.png'), text: '캠핑용 루프탑 텐트' },
-  { id: 5, dday: 'D-132', tag: '가보고싶다', image: require('../assets/images/profile1.png'), text: '이탈리아 베네치아' },
-  { id: 6, dday: 'D-380', tag: '해보고싶다', image: require('../assets/images/profile1.png'), text: '내가 찍은 사진으로 전시회 열기' },
-  { id: 7, dday: '언젠가', tag: '배우고싶다', image: require('../assets/images/profile1.png'), text: '드럼 배우기' },
+  { id: 1, dday: 'D-30', tag: '배우고싶다', image: require('../assets/images/profile1.png'), text: '드럼 배우기', reason: '음악을 좋아해서', vow: '매주 연습하기' },
+  { id: 2, dday: 'D-176', tag: '해보고싶다', image: require('../assets/images/profile2.png'), text: '스카이다이빙', reason: '극복해보고 싶어서', vow: '포기하지 않기' },
+  { id: 3, dday: '언젠가', tag: '되고싶다', image: require('../assets/images/profile3.png'), text: '베스트셀러작가 되기', reason: '책을 많이 읽어서', vow: '매일 글쓰기' },
+  { id: 4, dday: 'D-46', tag: '갖고싶다', image: require('../assets/images/profile1.png'), text: '캠핑용 루프탑 텐트', reason: '자연을 좋아해서', vow: '돈 아껴쓰기' },
+  { id: 5, dday: 'D-132', tag: '가보고싶다', image: require('../assets/images/profile1.png'), text: '이탈리아 베네치아', reason: '사진에서 보고 반함', vow: '여행 계획 세우기' },
+  { id: 6, dday: 'D-380', tag: '해보고싶다', image: require('../assets/images/profile1.png'), text: '내가 찍은 사진으로 전시회 열기', reason: '기록을 남기고 싶어서', vow: '사진 공부하기' },
+  { id: 7, dday: '언젠가', tag: '배우고싶다', image: require('../assets/images/profile1.png'), text: '드럼 배우기', reason: '리듬감 키우고 싶어서', vow: '매일 연습하기' },
 ];
 
 export default function BucketListScreen() {
   const [pinnedIds, setPinnedIds] = useState([]);
-  const navigation = useNavigation(); // ✅ 추가
+  const navigation = useNavigation();
 
   const togglePin = (id) => {
     setPinnedIds((prev) => {
@@ -64,7 +64,11 @@ export default function BucketListScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {sortedList.map(item => (
-          <View key={item.id} style={styles.bucketCard}>
+          <TouchableOpacity
+            key={item.id}
+            style={styles.bucketCard}
+            onPress={() => navigation.navigate('BucketListDetail', { item })} // ✅ 이동 연결
+          >
             <Image source={item.image} style={styles.cardImage} />
             <View style={styles.cardContent}>
               <View style={styles.ddayRow}>
@@ -82,13 +86,13 @@ export default function BucketListScreen() {
                 color={pinnedIds.includes(item.id) ? '#FBA834' : '#999'}
               />
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('BucketListAdd')} // ✅ 연결
+        onPress={() => navigation.navigate('BucketListAdd')}
       >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
