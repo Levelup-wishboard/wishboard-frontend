@@ -4,17 +4,17 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'rea
 const diaryData = [
   {
     date: '2024.04.21',
-    image: require('../assets/images/trophy.png'),
+    image: require('../assets/images/bungee.png'),
     message: '파이팅',
   },
   {
     date: '2024.04.22',
-    image: require('../assets/images/trophy.png'),
+    image: require('../assets/images/bungee.png'),
     message: '오늘 잘 해냈다!',
   },
   {
     date: '2024.04.23',
-    image: require('../assets/images/trophy.png'),
+    image: require('../assets/images/bungee.png'),
     message: '아자아자---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------!',
   },
 ];
@@ -119,24 +119,24 @@ backButton: {
     alignItems: 'center', 
     marginBottom: 6 
 },
-  badge: {
-    color: '#000',
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    fontSize: 10,
-    marginRight: 8,
-    height: 15,
-    width: 62,
-  },
-  title: { 
-    fontSize: 16, 
-    color: '#fff', 
-    fontWeight: 'bold' 
-    },
+badge: {
+  color: '#000',
+  // paddingVertical: 2,
+  paddingHorizontal: 8,
+  borderRadius: 8,
+  fontSize: 10,
+  marginRight: 8,
+  height: 15,
+  width: 62,
+},
+title: {
+  fontSize: 14,
+  color: '#fff',
+  // fontWeight: 'bold',
+},
   date: { 
     color: '#fff', 
-    fontSize: 12,
+    fontSize: 14,
      marginTop: 2 
     },
   dateLabel: {
@@ -181,15 +181,18 @@ backButton: {
   },
   navButton: {
     backgroundColor: '#FBA834',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    // paddingVertical: 8,
+    paddingTop:2,
+    paddingHorizontal: 10,
     borderRadius: 8,
+    width:100,
+    height:25,
   },
   navButtonText: { 
     color: '#fff', 
     fontSize: 12, 
     fontWeight: 'bold' 
-},
+  },
   disabled: {
     backgroundColor: '#ccc',
   },
@@ -204,7 +207,7 @@ backButton: {
     },
     aiButton: {
       backgroundColor: '#FBA834',
-      marginLeft: 50,
+      marginLeft: 70,
       borderRadius: 8,
       alignItems: 'center',
       width:100,

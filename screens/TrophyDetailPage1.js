@@ -52,7 +52,7 @@ export default function TropyDetailPage1({ route, navigation }) {
 
       {/* 고정 버튼 */}
       <TouchableOpacity style={styles.fixedButton} onPress={() => navigation.navigate('TropyDetailPage2', { trophy, index: 0 })}>
-        <Text style={styles.buttonText}>다음 페이지 ▶</Text>
+        <Text style={styles.buttonText}>{'다음 페이지 >'}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     color: '#000',
-    paddingVertical: 2,
+    // paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 8,
     fontSize: 10,
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     color: '#fff',
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
   },
   date: {
     color: '#fff',
@@ -156,22 +156,24 @@ const styles = StyleSheet.create({
     elevation: 4,
     width:100,
     height:25,
-    paddingHorizontal: 15,
-    paddingVertical: 3
+    paddingHorizontal: 10,
+    // paddingVertical: 3
+    paddingTop:2
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize:10
+    fontSize:12
   },
   trophy: {
     width: 64,
     height: 64,
   },
   share: {
-    width: 20,
-    height: 20,
-    marginTop: 20
+    width: 25,
+    height: 25,
+    marginTop: 20,
+    marginRight: 5
   },
   backButton: {
     alignSelf: 'flex-start',
