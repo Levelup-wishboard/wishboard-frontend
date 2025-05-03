@@ -4,17 +4,17 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'rea
 const diaryData = [
   {
     date: '2024.04.21',
-    image: require('../assets/images/trophy.png'),
+    image: require('../assets/images/bungee.png'),
     message: '파이팅',
   },
   {
     date: '2024.04.22',
-    image: require('../assets/images/trophy.png'),
+    image: require('../assets/images/bungee.png'),
     message: '오늘 잘 해냈다!',
   },
   {
     date: '2024.04.23',
-    image: require('../assets/images/trophy.png'),
+    image: require('../assets/images/bungee.png'),
     message: '아자아자---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------!',
   },
 ];
@@ -175,15 +175,18 @@ backButton: {
   },
   navButton: {
     backgroundColor: '#FBA834',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    // paddingVertical: 8,
+    paddingTop:2,
+    paddingHorizontal: 10,
     borderRadius: 8,
+    width:100,
+    height:25,
   },
   navButtonText: { 
     color: '#fff', 
     fontSize: 12, 
     fontWeight: 'bold' 
-},
+  },
   disabled: {
     backgroundColor: '#ccc',
   },
@@ -192,8 +195,9 @@ backButton: {
      height: 64 
     },
   share: { 
-    width: 20, 
-    height: 20, 
-    marginTop: 20 
+    width: 25, 
+    height: 25, 
+    marginTop: 20,
+    marginRight: 5
 },
 });

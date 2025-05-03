@@ -6,7 +6,7 @@ import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 const bucketListData = [
   {
     id: '1',
-    image: require('../assets/images/good.png'),
+    image: require('../assets/images/bungee.png'),
     title: '해외 열기구 페스티벌 참가하기',
     author: '나나',
     likes: 10,
@@ -15,7 +15,7 @@ const bucketListData = [
   },
   {
     id: '2',
-    image: require('../assets/images/good.png'),
+    image: require('../assets/images/bungee.png'),
     title: '해외 열기구 페스티벌 참가하기',
     author: '나나',
     likes: 10,
@@ -121,24 +121,27 @@ const styles = StyleSheet.create({
   },
   tag: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E0F3FF',
+    backgroundColor: '#93DEFF',
     paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+    // paddingVertical: 2,
+    borderRadius: 8,
     marginBottom: 4,
+    fontSize: 10,
+    height: 15,
+    width:62,
+    textAlign: 'center', 
+    fontWeight: 'bold',
   },
   tagText: {
-    color: '#93DEFF',
     fontSize: 10,
     fontWeight: 'bold',
   },
   title: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   author: {
-    fontSize: 12,
-    color: 'gray',
+    fontSize: 10,
     marginBottom: 4,
   },
   metaInfo: {
@@ -147,7 +150,6 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    color: 'gray',
     marginHorizontal: 4,
   },
   metaIcon: {

@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     width: 84, 
     fontSize: 20, 
     fontWeight: 'bold', 
-    marginBottom: 12, 
+    marginBottom: 3, 
     color: 'white'
   },
   button: {
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     color:'rgb(0, 0, 0)',
-    paddingVertical: 2,
+    // paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 8,
     alignSelf: 'flex-start',
@@ -199,16 +199,18 @@ const styles = StyleSheet.create({
     height: 15,
     width:62,
     textAlign: 'center', 
+    fontWeight: 'bold',
     marginTop:5
   },
   title: 
-  { fontSize: 16, 
-    fontWeight: 'bold',
+  { fontSize: 14, 
+    // fontWeight: 'bold',
      marginBottom: 4, 
      marginLeft: 10
     },
   date: 
-  { fontSize: 12,
+  { fontSize: 14,
+    marginTop: 5
 
   },
   trophys:

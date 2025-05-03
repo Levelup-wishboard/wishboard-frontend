@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5,
     alignSelf: 'center',
     color: '#FBA834'
   },
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 25
+    marginTop: 35
   },
   box: {
     width: 324,

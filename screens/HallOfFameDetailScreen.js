@@ -7,7 +7,7 @@ export default function HallOfFameDetailScreen({ route, navigation }) {
   // 예시: 해당 유저의 트로피 정보
   const trophy = {
     category: '해보고싶다',
-    color: '#00AEEF',
+    color: '#93DEFF',
     title: '열기구 타기',
     createdAt: '2024.04.21',
     targetDate: '2025.02.14',
@@ -15,7 +15,7 @@ export default function HallOfFameDetailScreen({ route, navigation }) {
 
   const reason = '여행 중 열기구를 보고 꼭 타보고 싶었어요.';
   const promise = '끝까지 도전해서 꼭 달성할 거예요!';
-  const imageUri = require('../assets/images/trophy.png');
+  const imageUri = require('../assets/images/bungee.png');
 
   return (
     <View style={styles.wrapper}>
@@ -63,7 +63,7 @@ export default function HallOfFameDetailScreen({ route, navigation }) {
         
       </ScrollView>
       <TouchableOpacity style={styles.fixedButton} onPress={() => navigation.navigate('HallOfFameDetailScreen2', { origin, name, trophy, index: 0 })}>
-            <Text style={styles.buttonText}>다음 페이지 ▶</Text>
+            <Text style={styles.buttonText}>{'다음 페이지>'}</Text>
         </TouchableOpacity>
     </View>
   );
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     color: '#000',
-    paddingVertical: 2,
+    // paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 8,
     fontSize: 10,
@@ -116,13 +116,13 @@ const styles = StyleSheet.create({
     width: 62,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#fff',
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
   },
   date: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 14,
     marginTop: 2,
   },
   dateLabel: {
@@ -185,17 +185,18 @@ const styles = StyleSheet.create({
     elevation: 4,
     width:100,
     height:25,
-    paddingHorizontal: 15,
-    paddingVertical: 3
+    paddingHorizontal: 10,
+    // paddingVertical: 3
+    paddingTop:2
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize:10
+    fontSize:12
   },
   aiButton: {
     backgroundColor: '#FBA834',
-    marginLeft: 50,
+    marginLeft: 70,
     borderRadius: 8,
     alignItems: 'center',
     width:100,
