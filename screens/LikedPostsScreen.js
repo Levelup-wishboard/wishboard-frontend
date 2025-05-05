@@ -63,8 +63,8 @@ export default function LikedPostsScreen({ navigation }) {
             <Text style={styles.headerTitle}>좋아요 단 글</Text>
           </View>
           <View style={styles.headerRight}>
-            <Ionicons name="notifications-outline" size={20} color="#FBA834" style={{ marginRight: 16 }} onPress={() => {navigation.navigate('Home', { screen: 'Alam' })}}/>
-            <Ionicons name="person-outline" size={20} color="#FBA834" onPress={() => {navigation.navigate('Home', { screen: 'Mypage' })}}/>
+          <Ionicons name="notifications-outline" size={20} color="#FBA834" style={{ marginRight: 16 }} onPress={() => {navigation.navigate('mypage', { screen: 'Alam' })}}/>
+          <Ionicons name="person-outline" size={20} color="#FBA834" onPress={() => {navigation.navigate('mypage', { screen: 'MyPageScreen' })}}/>
           </View>
         </View>
   

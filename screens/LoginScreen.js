@@ -51,11 +51,17 @@ export default function LoginScreen({ setLoggedIn }) {
           />
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={() => {navigation.navigate('Home', { screen: 'Mypage' })}}>
+        <TouchableOpacity style={styles.loginButton} onPress={() => {navigation.replace('AppTabs', {
+          screen: 'mypage',          // Tab.Screen 이름
+          params: {
+            screen: 'MyPageScreen'    // MypageStack 내 스크린 이름
+          }
+        });
+        }}>
           <Text style={styles.buttonText}>로그인하기</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => {navigation.navigate('Home', { screen: 'Register' })}}>
+        <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
       <Text style={styles.registerText}>회원가입</Text>
       </TouchableOpacity>     
       </View>

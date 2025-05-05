@@ -10,7 +10,8 @@ import {
   Modal,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
+
 
 // 메뉴 아이템 컴포넌트 (딱 1번만 선언)
 function MenuItem({ icon, label, onPress }) {
@@ -27,8 +28,12 @@ export default function MyPageScreen() {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleLogout = () => {
-    setModalVisible(false);
-    navigation.navigate('Login');
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'LoginScreen' }],
+      })
+    );
   };
 
   return (
@@ -36,7 +41,7 @@ export default function MyPageScreen() {
       {/* 헤더 */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={handleLogout}>
             <Ionicons name="chevron-back" size={28} color="#FBA834" />
           </TouchableOpacity>
           <View style={styles.greetingContainer}>

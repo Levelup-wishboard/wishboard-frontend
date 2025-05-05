@@ -1,12 +1,14 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import TrophyScreen from '../screens/TrophyScreen';
 import CommunityStack from './CommunityStack';
-import CommunityHomeScreen from '../screens/CommunityHomeScreen';
-import MainScreen from '../screens/MainScreen';
-import Mypage from './HomeStack';
+import HomeStack from './HomeStack';
+import BucketListStack from './BucketListStack'; // ✅ 버킷리스트 Stack 연결
+import TrophyStack from './TrophyStack'; // ✅ 트로피 Stack도 유지
+import MypageStack from './MyPageStack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 
 
 //  화면별 임시 컴포넌트 
@@ -41,7 +43,18 @@ function CommunityScreen() {
   // );
 // }
 
+
+
 const Tab = createBottomTabNavigator();
+const HiddenStack = createNativeStackNavigator();
+
+function HiddenStackScreen() {
+  return (
+    <HiddenStack.Navigator screenOptions={{ headerShown: false }}>
+      <HiddenStack.Screen name="mypage" component={MypageStack} />
+    </HiddenStack.Navigator>
+  );
+}
 
 export default function AppNavigator() {
   return (
@@ -49,7 +62,7 @@ export default function AppNavigator() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === 'Home') {
+          if (route.name === 'HomeTab') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'BucketList') {
             iconName = focused ? 'flag' : 'flag-outline';
@@ -66,12 +79,22 @@ export default function AppNavigator() {
         tabBarShowLabel: false,
       })}
     >
-      <Tab.Screen name="Home" component={Mypage} options={{ title: '홈' }}/>
-      <Tab.Screen name="BucketList" component={BucketListScreen} options={{ title: '버킷리스트' }} />
-      <Tab.Screen name="Community" component={CommunityStack} options={{ title: '커뮤니티' }} />
-      <Tab.Screen name="Trophy" component={TrophyScreen} options={{ title: '트로피' }} />
-  
+      <Tab.Screen name="HomeTab" component={HomeStack} />
+      <Tab.Screen name="BucketList" component={BucketListStack} />
+      <Tab.Screen name="Community" component={CommunityStack} />
+      <Tab.Screen name="Trophy" component={TrophyStack} />
+      <Tab.Screen
+        name="mypage"
+        component={HiddenStackScreen}
+        options={{
+          tabBarButton: () => null, 
+          tabBarItemStyle: {
+            display: 'none', 
+            width: 0,
+          },
+        }}
+      />
+
     </Tab.Navigator>
   );
 }
-
