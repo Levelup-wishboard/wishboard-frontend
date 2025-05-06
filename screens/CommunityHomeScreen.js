@@ -13,6 +13,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import { useRoute } from '@react-navigation/native';
+import AppNavigator from '../navigation/AppNavigator';
 
 const CommunityHomeScreen = () => {
   const route = useRoute();
