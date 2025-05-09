@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
 },
   header: {
     backgroundColor: '#333A73',
+    paddingTop:30,
     padding: 15,
     flexDirection: 'column',
     gap: 10,

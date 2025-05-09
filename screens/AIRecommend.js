@@ -84,9 +84,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#333A73',
     paddingVertical: 20,
     paddingHorizontal: 15,
-    paddingTop: 40, // status bar 고려
+    paddingTop: 70, // status bar 고려
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   backIconBox: {
     marginRight: 12,
