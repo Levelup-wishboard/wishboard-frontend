@@ -1,5 +1,5 @@
 // screens/MyPageScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation, CommonActions } from '@react-navigation/native';
-
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 메뉴 아이템 컴포넌트 (딱 1번만 선언)
 function MenuItem({ icon, label, onPress }) {
@@ -26,14 +27,23 @@ function MenuItem({ icon, label, onPress }) {
 export default function MyPageScreen() {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
+  const [nickname, setNickname] = useState('');
 
-  const handleLogout = () => {
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'LoginScreen' }],
-      })
-    );
+  useEffect(() => {
+    const fetchNickname = async () => {
+      try {
+        const savedNickname = await AsyncStorage.getItem('nickname');
+        if (savedNickname) setNickname(savedNickname);
+      } catch (err) {
+        console.error('닉네임 불러오기 실패', err);
+      }
+    };
+    fetchNickname();
+  }, []);
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('accessToken');
+    navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'LoginScreen' }] }));
   };
 
   return (
@@ -46,7 +56,7 @@ export default function MyPageScreen() {
           </TouchableOpacity>
           <View style={styles.greetingContainer}>
             <Text style={styles.headerText}>환영합니다</Text>
-            <Text style={styles.nameText}>수정이 님</Text>
+            <Text style={styles.nameText}>{nickname} 님</Text>
           </View>
           <View style={{ width: 28 }} />
         </View>

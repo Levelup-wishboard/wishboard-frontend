@@ -11,6 +11,7 @@ import MyPostsScreen from '../screens/MyPostsScreen';
 import LikedPostsScreen from '../screens/LikedPostsScreen';
 import AlamScreen from '../screens/AlamScreen';
 import LoginScreen from '../screens/LoginScreen';
+import BucketList from "../screens/BucketListScreen"
 
 
 
@@ -19,7 +20,7 @@ const Stack = createNativeStackNavigator();
 export default function MypageStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MyPageScreen" component={MyPageScreen} />
+      <Stack.Screen name="MyPageHome" component={MyPageScreen} />
       <Stack.Screen name="EditionInfo" component={EditInfoScreen} />
       <Stack.Screen name="Notification" component={NotificationSettingsScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
@@ -27,6 +28,7 @@ export default function MypageStack() {
       <Stack.Screen name="MyPosts" component={MyPostsScreen} />
       <Stack.Screen name="LikedPosts" component={LikedPostsScreen} />
       <Stack.Screen name="Alam" component={AlamScreen} />
+      <Stack.Screen name="OngoingBucketList" component={BucketList} />
     </Stack.Navigator>
   );
 }

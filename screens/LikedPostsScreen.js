@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,38 +7,62 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LikedPostsScreen({ navigation }) {
 
-    const posts = [
-      {
-        id: 1,
-        category: '스카이다이빙',
-        label: '인원모집',
-        title: '스카이다이빙 함께할 멤버 모집합니다! (초보자도 환영)',
-        author: '나나',
-        likes: 10,
-        comments: 10,
-        time: '18:30',
-        thumbnail: require('../assets/images/sky.png'),
-      },
-      {
-        id: 2,
-        category: '수상스키',
-        label: '정보',
-        title: '수상스키 시작을 위한 필수 준비물',
-        author: '키키',
-      },
-      {
-        id: 3,
-        category: '번지점프',
-        label: 'Q&A',
-        title: '우리나라에서 가장 높은 번지점프 어디인가요??',
-        author: '안농',
-      },
-    ];
+    // const posts = [
+    //   {
+    //     id: 1,
+    //     category: '스카이다이빙',
+    //     label: '인원모집',
+    //     title: '스카이다이빙 함께할 멤버 모집합니다! (초보자도 환영)',
+    //     author: '나나',
+    //     likes: 10,
+    //     comments: 10,
+    //     time: '18:30',
+    //     thumbnail: require('../assets/images/sky.png'),
+    //   },
+    //   {
+    //     id: 2,
+    //     category: '수상스키',
+    //     label: '정보',
+    //     title: '수상스키 시작을 위한 필수 준비물',
+    //     author: '키키',
+    //   },
+    //   {
+    //     id: 3,
+    //     category: '번지점프',
+    //     label: 'Q&A',
+    //     title: '우리나라에서 가장 높은 번지점프 어디인가요??',
+    //     author: '안농',
+    //   },
+    // ];
+    const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+      const fetchLikedPosts = async () => {
+        try {
+          const token = await AsyncStorage.getItem('accessToken');
+          const res = await axios.get('http://192.168.0.41:8080/users/myLike', { //본인 pc ip주소로 바꿔줘야함.
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          setPosts(res.data.data);
+        } catch (error) {
+          console.error('좋아요 단 글 조회 실패:', error);
+          Alert.alert('오류', '좋아요 단 글을 불러오지 못했습니다.');
+        }
+      };
+
+      fetchLikedPosts();
+    }, []);
   
     const getLabelColor = (label) => {
       switch (label) {
@@ -48,6 +72,8 @@ export default function LikedPostsScreen({ navigation }) {
           return '#93DEFF';
         case 'Q&A':
           return '#93FFC9';
+        case '트로피':
+          return '#FFFF93';
         default:
           return '#eee';
       }
@@ -74,14 +100,14 @@ export default function LikedPostsScreen({ navigation }) {
               <View style={styles.topRow}>
                 <View style={styles.badgeContainer}>
                   <View style={styles.badges}>
-                    <Text style={styles.badgeGray}>{post.category}</Text>
+                    <Text style={styles.badgeGray}>{post.communityDiversity}</Text>
                     <Text
                       style={[
                         styles.badgeColored,
-                        { backgroundColor: getLabelColor(post.label) },
+                        { backgroundColor: getLabelColor(post.communityType) },
                       ]}
                     >
-                      {post.label}
+                      {post.communityType}
                     </Text>
                   </View>
                   <Text style={styles.title}>{post.title}</Text>
@@ -94,13 +120,13 @@ export default function LikedPostsScreen({ navigation }) {
               </View>
   
               <View style={styles.meta}>
-                <Text style={styles.author}>{post.author}</Text>
-                {post.likes !== undefined && (
+                <Text style={styles.author}>{post.writerNickName}</Text>
+                {post.likeNum !== undefined && (
                   <>
                     <Ionicons name="thumbs-up-outline" size={14} color="#555" />
-                    <Text style={styles.iconText}>{post.likes}</Text>
+                    <Text style={styles.iconText}>{post.likeNum}</Text>
                     <Ionicons name="chatbubble-outline" size={14} color="#555" style={{ marginLeft: 12 }} />
-                    <Text style={styles.iconText}>{post.comments}</Text>
+                    <Text style={styles.iconText}>{post.commentNum}</Text>
                     <Text style={styles.time}>{post.time}</Text>
                   </>
                 )}
