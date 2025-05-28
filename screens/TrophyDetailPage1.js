@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#333A73',
     padding: 15,
+    paddingTop:30,
     flexDirection: 'column', // 상하 정렬
     gap: 10,
   },

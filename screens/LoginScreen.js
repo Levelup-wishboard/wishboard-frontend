@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -10,13 +11,43 @@ import {
   TouchableOpacity,
   TextInput,
   StatusBar,
+  Alert
 } from 'react-native';
 
-export default function LoginScreen({ setLoggedIn }) {
+export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
+
+  const handleLogin = async () => {
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
   
+      const response = await axios.post(
+        'http://192.168.0.41:8080/login',  //본인 pc ip주소로 바꿔줘야함.
+        formData.toString(), 
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+
+      const token = response.data.token;
+      await AsyncStorage.setItem('accessToken', token);
+
+      navigation.replace('AppTabs', {
+        screen: 'mypage',
+        params: { screen: 'MyPageHome' }
+      });
+
+    } catch (error) {
+      console.error('로그인 실패:', error);
+      Alert.alert('로그인 실패', '아이디 또는 비밀번호를 확인해주세요.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -51,15 +82,10 @@ export default function LoginScreen({ setLoggedIn }) {
           />
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={() => {navigation.replace('AppTabs', {
-          screen: 'mypage',          // Tab.Screen 이름
-          params: {
-            screen: 'MyPageScreen'    // MypageStack 내 스크린 이름
-          }
-        });
-        }}>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.buttonText}>로그인하기</Text>
         </TouchableOpacity>
+
 
         <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
       <Text style={styles.registerText}>회원가입</Text>

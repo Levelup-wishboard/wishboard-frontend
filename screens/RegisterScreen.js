@@ -7,9 +7,11 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // 뒤로가기 아이콘용
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
 
 export default function RegisterScreen() {
@@ -18,6 +20,28 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const navigation = useNavigation();
+
+  
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert('오류', '비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://192.168.0.41:8080/users/user', {  //본인 pc ip주소로 바꿔줘야함.
+        userId: username,
+        password: password,
+        nickName: nickname,
+      });
+
+      Alert.alert('성공', '회원가입성공');
+      navigation.goBack(); // 로그인 페이지로 이동
+    } catch (error) {
+      console.error(error);
+      Alert.alert('회원가입 실패', error.response?.data?.message || '서버 오류 발생');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -77,7 +101,7 @@ export default function RegisterScreen() {
         </View>
 
         {/* 가입하기 버튼 */}
-        <TouchableOpacity style={styles.registerButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
           <Text style={styles.registerButtonText}>가입하기</Text>
         </TouchableOpacity>
       </View>
