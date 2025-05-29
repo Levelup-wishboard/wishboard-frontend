@@ -3,14 +3,17 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   FlatList,
   TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
+import api from '../constants/api';
 
+<<<<<<< Updated upstream
 /* ---------------- 고정 데이터 ---------------- */
 // community_diversity (상위 분류)
 const COMMUNITIES = [
@@ -55,58 +58,96 @@ function filterCommunities(keyword) {
 }
 
 /* ---------------------------------------------------- */
+=======
+>>>>>>> Stashed changes
 export default function SearchCommunityScreen() {
   const navigation = useNavigation();
 
   const [keyword, setKeyword] = useState('');
-  const [results, setResults] = useState(COMMUNITIES);
+  const [communities, setCommunities] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  /* Debounce 300 ms */
+  const goDetail = (communityType) => {
+  navigation.navigate('CommunityDetail', {
+    communityType,          // ex. '트로피'
+    diversityKeyword: keyword, // ex. '실내활동'
+    title: keyword,         // 헤더에 '실내활동'으로 표시
+    fromSearch: true,
+  });
+};
+
   useEffect(() => {
-    const id = setTimeout(() => setResults(filterCommunities(keyword)), 300);
-    return () => clearTimeout(id);
-  }, [keyword]);
+  let timer;
+  if (keyword) {
+    timer = setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data } = await api.get('/api/communities', {
+          params: { keyword },
+        });
+        setCommunities(data);
+      } catch (e) {
+        console.warn(e);
+        setError(e.message);
+        setCommunities([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+  } else {
+    setCommunities([]);
+  }
+  return () => clearTimeout(timer);
+}, [keyword]);
 
-  /* 이동 */
-  const goDetail = (id, title) =>
-    navigation.navigate('CommunityDetail', { communityId: id, title });
-
-  /* ---------------- UI ---------------- */
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
       <Header showBackButton leftContent="커뮤니티 검색" />
 
       {/* 검색창 */}
-      <View style={styles.header}>
-        <View style={styles.searchBox}>
+      <View style={{ padding: 12, backgroundColor: '#333A73' }}>
+        <View style={{ flexDirection: 'row', backgroundColor: '#FFF', borderRadius: 8, padding: 8 }}>
           <Ionicons name="search-outline" size={20} color="#999" style={{ marginRight: 8 }} />
           <TextInput
-            style={styles.searchInput}
-            placeholder="상위·하위 분류를 입력하세요"
+            style={{ flex: 1 }}
+            placeholder="키워드를 입력하세요"
             placeholderTextColor="#999"
             value={keyword}
             onChangeText={setKeyword}
+            returnKeyType="search"
           />
         </View>
       </View>
 
-      {/* 결과 목록 */}
+      {/* 로딩/에러 */}
+      {loading && <ActivityIndicator style={{ marginTop: 16 }} />}
+      {error && <Text style={{ color: 'red', padding: 16 }}>에러: {error}</Text>}
+
+      {/* 결과 리스트 */}
       <FlatList
-        data={results}
-        keyExtractor={(item) => item.id}
+        data={communities}
+        keyExtractor={(item) => item.communityType}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.item} onPress={() => goDetail(item.id, item.name)}>
-            <Ionicons name="people-outline" size={20} color="#333" style={{ marginRight: 8 }} />
-            <Text style={styles.itemText}>{item.name}</Text>
+          <TouchableOpacity
+            style={{ flexDirection: 'row', padding: 16, borderBottomWidth: 1, borderColor: '#eee' }}
+            onPress={() => goDetail(item.communityType)}
+          >
+            <Text style={{ flex: 1 }}>{item.communityType}</Text>
+            <Text style={{ color: '#666' }}>{item.postCount}개</Text>
           </TouchableOpacity>
         )}
         ListEmptyComponent={
-          <Text style={{ color: '#777', padding: 16 }}>검색 결과가 없습니다.</Text>
+          !loading && keyword ? (
+            <Text style={{ color: '#777', padding: 16 }}>검색 결과가 없습니다.</Text>
+          ) : null
         }
       />
     </View>
   );
 }
+
 
 /* ---------------- 스타일 ---------------- */
 const styles = StyleSheet.create({

@@ -19,8 +19,8 @@ const CommunityHomeScreen = () => {
   const navigation = useNavigation();
 
   // 클릭 시 detail로 이동
-  const goDetail = (id, title) => {
-    navigation.navigate('CommunityDetail', { communityId: id, title });
+  const goDetail = (communityType, title) => {
+    navigation.navigate('CommunityDetail', { communityType, title });
   };
 
   const onAddKeyword = () => {
