@@ -1,10 +1,10 @@
 // screens/CommunityDetailScreen.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   SafeAreaView, View, Text, FlatList, TouchableOpacity,
-  ScrollView, ActivityIndicator, StyleSheet
+  ScrollView, ActivityIndicator, StyleSheet,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import Header from '../components/Header';
 import WriteButton from '../components/WriteButton';
@@ -82,7 +82,7 @@ export default function CommunityDetailScreen() {
        .catch(e => console.warn('스크랩 조회 실패', e));
   }, [communityDiversity]);
 
-useEffect(() => {
+const fetchPosts = useCallback(() => {
   setLoading(true);
   setError(null);
 
@@ -92,33 +92,33 @@ useEffect(() => {
       // “All” 탭: diversity 안의 모든 게시판 글 합치기
       Promise.all(
         BOARD_TYPES.map(type =>
-          api.get(`/api/communities/${encodeURIComponent(type)}`, { params: { page: 0, size: 100, communityDiversity } 
-        })
-          .then(res => 
-            (res.data.content || [])
-           .map(p => ({ ...p, communityType: type })) 
-          )
+          api.get(`/api/communities/${encodeURIComponent(type)}`, {
+            params: { page: 0, size: 100, communityDiversity }
+          })
+            .then(res =>
+              (res.data.content || [])
+                .map(p => ({ ...p, communityType: type }))
+            )
         )
       )
-      .then(results => setPosts(results.flat()))
-      .catch(e => {
-        console.warn('불러오기 실패', e);
-        setError('불러오기 실패');
-        setPosts([]);
-      })
-      .finally(() => setLoading(false));
-
+        .then(results => setPosts(results.flat()))
+        .catch(e => {
+          console.warn('불러오기 실패', e);
+          setError('불러오기 실패');
+          setPosts([]);
+        })
+        .finally(() => setLoading(false));
     } else {
       // “특정 탭” 분기: 해당 탭 + diversity
       const endpoint = `/api/communities/${encodeURIComponent(selectedTab)}`;
-      const params   = { page: 0, size: 100 };
+      const params = { page: 0, size: 100 };
 
       console.log('▶️ fetching (search single)', endpoint, params);
       api.get(endpoint, { params })
         .then(({ data }) => {
-           // diversity 키워드로 필터링
-         const filtered = (data.content || [])
-           .filter(post => post.diversity === communityDiversity);
+          // diversity 키워드로 필터링
+          const filtered = (data.content || [])
+            .filter(post => post.diversity === communityDiversity);
           setPosts(filtered);
         })
         .catch(e => {
@@ -128,55 +128,63 @@ useEffect(() => {
         })
         .finally(() => setLoading(false));
     }
-
-  }  else {
-     // ─── 홈→디테일 분기 ───
-   if (selectedTab === 'All') {
-     // All 탭: diversity 안의 모든 게시판 글을 /
-     // Promise.all로 병렬 조회 → 합치기
-     Promise.all(
-       BOARD_TYPES.map(type =>
-         api.get(
-           `/api/communities/${encodeURIComponent(type)}`,
-           { params: { page: 0, size: 20 } }
-         ).then(res =>
-           // 받은 content 중 diversity 필터
-           (res.data.content || [])
-             .filter(p => p.diversity === communityDiversity)
-             .map(p => ({ ...p, communityType: type }))
-         )
-       )
-     )
-     .then(results => setPosts(results.flat()))
-     .catch(e => {
-       console.warn('불러오기 실패', e)
-       setError('불러오기 실패')
-       setPosts([])
-     })
-     .finally(() => setLoading(false))
-
-   } else {
-     // 수정: /api/communities/{탭} 로 호출
-     api.get(
-       `/api/communities/${encodeURIComponent(selectedTab)}`,
-       { params: { page: 0, size: 20 } }
-     )
-       .then(({ data }) => {
-        // diversity 필터 적용
-        setPosts(
-          (data.content || [])
-            .filter(p => p.diversity === communityDiversity)
-        );
-       })
-     .catch(e => {
-       console.warn('불러오기 실패', e)
-       setError('불러오기 실패')
-       setPosts([])
-     })
-     .finally(() => setLoading(false))
-   }
-}
+  } else {
+    // ─── 홈→디테일 분기 ───
+    if (selectedTab === 'All') {
+      // All 탭: diversity 안의 모든 게시판 글을
+      // Promise.all로 병렬 조회 → 합치기
+      Promise.all(
+        BOARD_TYPES.map(type =>
+          api.get(
+            `/api/communities/${encodeURIComponent(type)}`,
+            { params: { page: 0, size: 20 } }
+          ).then(res =>
+            // 받은 content 중 diversity 필터
+            (res.data.content || [])
+              .filter(p => p.diversity === communityDiversity)
+              .map(p => ({ ...p, communityType: type }))
+          )
+        )
+      )
+        .then(results => setPosts(results.flat()))
+        .catch(e => {
+          console.warn('불러오기 실패', e)
+          setError('불러오기 실패')
+          setPosts([])
+        })
+        .finally(() => setLoading(false))
+    } else {
+      // 수정: /api/communities/{탭} 로 호출
+      api.get(
+        `/api/communities/${encodeURIComponent(selectedTab)}`,
+        { params: { page: 0, size: 20 } }
+      )
+        .then(({ data }) => {
+          // diversity 필터 적용
+          setPosts(
+            (data.content || [])
+              .filter(p => p.diversity === communityDiversity)
+          );
+        })
+        .catch(e => {
+          console.warn('불러오기 실패', e)
+          setError('불러오기 실패')
+          setPosts([])
+        })
+        .finally(() => setLoading(false))
+    }
+  }
 }, [communityDiversity, selectedTab, fromSearch]);
+useEffect(() => {
+  fetchPosts();
+}, [fetchPosts]);
+
+useFocusEffect(
+  useCallback(() => {
+    fetchPosts();
+  }, [fetchPosts])
+);
+
 
 
 

@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef,  useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput,
-  Animated, Alert, ActivityIndicator, Platform
+  Animated, Alert, ActivityIndicator, Platform, 
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation,useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -242,32 +242,59 @@ export default function PostDetailScreen() {
 
   // ---- 게시글 메뉴 ----
   const handleEdit = () => {
-    setShowPopover(false);
-    navigation.navigate('PostWrite', {
-      mode: 'edit',
-      postData: post,
-      onSave: (updated) => setPost(p => ({ ...p, ...updated })),
-    });
-  };
+  setShowPopover(false);
+  navigation.navigate('PostWrite', {
+    mode: 'edit',
+    postId: post.postId,
+    postData: post,
+    defaultBoardTab: post.communityType,
+    diversity: post.diversity
+  });
+};
 
-  const handleDelete = () => {
-    setShowPopover(false);
-    Alert.alert(
-      '삭제하시겠어요?',
-      '삭제하면 되돌릴 수 없습니다.',
-      [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '삭제',
-          style: 'destructive',
-          onPress: () => {
-            navigation.goBack();
-          },
-        },
-      ],
-      { cancelable: true }
-    );
-  };
+// ---- 삭제 기능 연동 ----
+  const deletePost = async () => {
+  try {
+    const token = await AsyncStorage.getItem('accessToken');
+    const res = await fetch(`http://localhost:8080/api/posts/${postId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (res.ok) {
+      alert('삭제 완료!');
+      navigation.goBack();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert('삭제 실패: ' + (err.message || res.status));
+    }
+  } catch (e) {
+    alert('삭제 실패: ' + (e?.message || '오류'));
+  }
+};
+
+const handleDelete = () => {
+  console.log('[DEBUG] handleDelete 실행!');
+  if (Platform.OS === 'web') {
+    if (window.confirm('삭제하면 되돌릴 수 없습니다.\n정말 삭제하시겠어요?')) {
+      // 실제 삭제 로직 호출!
+      deletePost();
+    }
+    return;
+  }
+
+  Alert.alert(
+    '삭제하시겠어요?',
+    '삭제하면 되돌릴 수 없습니다.',
+    [
+      { text: '취소', style: 'cancel' },
+      { text: '삭제', style: 'destructive', onPress: deletePost },
+    ],
+    { cancelable: true }
+  );
+};
+
+
+
 
   // ---- 헤더 아래 게시글 info 렌더 ----
   const renderHeader = () => (
