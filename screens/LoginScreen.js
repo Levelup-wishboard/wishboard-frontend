@@ -26,7 +26,11 @@ export default function LoginScreen() {
       formData.append('password', password);
   
       const response = await axios.post(
+<<<<<<< HEAD
         'http://3.39.187.114:8080/login',  //본인 pc ip주소로 바꿔줘야함.
+=======
+        'http://192.168.0.41:8080/login',  //본인 pc ip주소로 바꿔줘야함.
+>>>>>>> b8ce1280b644c845139b3ddc4d8a1691cd77dfab
         formData.toString(), 
         {
           headers: {
@@ -34,7 +38,11 @@ export default function LoginScreen() {
           },
         }
       );
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> b8ce1280b644c845139b3ddc4d8a1691cd77dfab
       const token = response.data.token;
       await AsyncStorage.setItem('accessToken', token);
 
@@ -49,8 +57,11 @@ export default function LoginScreen() {
     }
   };
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> b8ce1280b644c845139b3ddc4d8a1691cd77dfab
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
