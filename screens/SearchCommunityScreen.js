@@ -13,54 +13,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
 import api from '../constants/api';
 
-<<<<<<< Updated upstream
-/* ---------------- 고정 데이터 ---------------- */
-// community_diversity (상위 분류)
-const COMMUNITIES = [
-  { id: 'extreme-sports',  name: '익스트림 스포츠' },
-  { id: 'indoor-activities',   name: '실내활동' },
-  { id: 'study',    name: '학업' },
-  { id: 'health',   name: '피트니스•건강' },
-];
-
-// type (하위 분류)
-const TYPES = [
-  { id: 't1', communityId: 'extreme-sports', name: '수상스키' },
-  { id: 't2', communityId: 'extreme-sports', name: '번지점프' },
-  { id: 't3', communityId: 'indoor-activities',  name: '피아노' },
-  { id: 't4', communityId: 'study',  name: '공부' },
-  { id: 't5', communityId: 'health',  name: '크로스핏' },
-];
-
-/* ---------------- 헬퍼 ---------------- */
-const COMMUNITY_MAP = Object.fromEntries(COMMUNITIES.map((c) => [c.id, c]));
-const normalize = (s) => s.toLowerCase().replace(/\s+/g, '');
-
-function filterCommunities(keyword) {
-  if (!keyword) return COMMUNITIES;
-
-  const key = normalize(keyword);
-  const matched = [];
-
-  // ① 상위 분류 이름 매치
-  COMMUNITIES.forEach((c) => {
-    if (normalize(c.name).includes(key)) matched.push(c);
-  });
-
-  // ② 하위 분류 매치 → 해당 community 추가
-  TYPES.forEach((t) => {
-    if (normalize(t.name).includes(key)) {
-      const comm = COMMUNITY_MAP[t.communityId];
-      if (comm && !matched.some((m) => m.id === comm.id)) matched.push(comm);
-    }
-  });
-
-  return matched;
-}
-
-/* ---------------------------------------------------- */
-=======
->>>>>>> Stashed changes
 export default function SearchCommunityScreen() {
   const navigation = useNavigation();
 
