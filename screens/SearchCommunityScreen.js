@@ -24,7 +24,7 @@ export default function SearchCommunityScreen() {
   const goDetail = (communityType) => {
   navigation.navigate('CommunityDetail', {
     communityType,          // ex. '트로피'
-    diversityKeyword: keyword, // ex. '실내활동'
+    communityDiversity: keyword, // ex. '실내활동'
     title: keyword,         // 헤더에 '실내활동'으로 표시
     fromSearch: true,
   });

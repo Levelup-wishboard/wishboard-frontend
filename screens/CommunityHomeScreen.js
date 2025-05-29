@@ -1,5 +1,5 @@
 // screens/CommunityHomeScreen.js
-import React from 'react';
+import React, { useState, useEffect, useCallback  } from 'react';
 import {
   SafeAreaView,
   View,
@@ -10,18 +10,46 @@ import {
   TouchableOpacity
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,  useRoute, useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
-import { useRoute } from '@react-navigation/native';
-import AppNavigator from '../navigation/AppNavigator';
+import api from '../constants/api';
+
+const labelMap = {
+  studies:      '학업',
+  activities:   '실내활동',
+  fitnessZone:  '피트니스•건강',
+  extremeSports:'익스트림 스포츠',
+};
 
 const CommunityHomeScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
 
+  // 1) 스크랩 목록 상태
+  const [scraps, setScraps] = useState([]);
+
+  // 2) 스크랩 API 호출
+   useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      api.get('/api/community-scraps')
+        .then(({ data }) => {
+          if (!isActive) return;
+          setScraps(Array.isArray(data.content) ? data.content : []);
+        })
+        .catch(e => console.warn('스크랩 조회 실패', e));
+      return () => { isActive = false; };
+    }, [])
+  );
+
   // 클릭 시 detail로 이동
-  const goDetail = (communityType, title) => {
-    navigation.navigate('CommunityDetail', { communityType, title });
+  const goDetail = (communityDiversity, communityType, title) => {
+    navigation.navigate('CommunityDetail', 
+      { communityDiversity, //ex) 실내활동
+        communityType,
+        title, // 제목
+        fromSearch: false,
+      });
   };
 
   const onAddKeyword = () => {
@@ -49,17 +77,29 @@ const CommunityHomeScreen = () => {
           />
         </View>
       </View>
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* 즐겨찾기 커뮤니티 */}
         <Text style={styles.sectionTitle}>즐겨찾기 커뮤니티</Text>
         <View style={styles.card}>
-          <TouchableOpacity 
-            style={styles.menuItem}
-            onPress={() => goDetail('extreme-sports', '익스트림 스포츠')}
-          >
-            <Ionicons name="bookmark" size={20} color="#FBA834" style={styles.menuIcon} />
-            <Text style={styles.menuText}>익스트림 스포츠</Text>
-          </TouchableOpacity>
+          {scraps.length === 0 ? (
+            <Text style={styles.emptyText}>스크랩한 커뮤니티가 없습니다.</Text>
+          ) : (
+            scraps.map(s => {
+              const slug  = s.communityName;                  // 'studies'
+              const label = labelMap[slug] || slug;  
+              return (
+                <TouchableOpacity
+                  key={s.scrapId}
+                  style={styles.menuItem}
+                  // onPress={() => goDetail(label, slug, label)}
+                >
+                  <Ionicons name="bookmark" size={20} color="#FBA834" style={styles.menuIcon} />
+                  <Text style={styles.menuText}>{label}</Text>
+                </TouchableOpacity>
+              );
+            })
+          )}
         </View>
 
         {/* 알림 키워드 */}
@@ -84,14 +124,18 @@ const CommunityHomeScreen = () => {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>전체 커뮤니티</Text>
           <TouchableOpacity onPress={onAddCommunity} style={styles.addButton}>
-            <Ionicons name="add-circle" size={24} color="#FBA834" />
+            {/* <Ionicons name="add-circle" size={24} color="#FBA834" /> */}
           </TouchableOpacity>
         </View>
 
         <View style={styles.card}>
           <TouchableOpacity 
             style={styles.menuItem}
-            onPress={() => goDetail('extreme-sports', '익스트림 스포츠')}
+            onPress={() => goDetail(
+              '익스트림 스포츠',
+              '정보',
+              '익스트림 스포츠'
+            )}
           >
             <Ionicons name="people-outline" size={20} color="#333" style={styles.menuIcon} />
             <Text style={styles.menuText}>익스트림 스포츠</Text>
@@ -99,7 +143,11 @@ const CommunityHomeScreen = () => {
 
           <TouchableOpacity 
             style={styles.menuItem}
-            onPress={() => goDetail('indoor-activities', '실내활동')}
+            onPress={() => goDetail(
+              '실내활동', 
+              '정보',
+              '실내활동'
+            )}
           >
             <Ionicons name="people-outline" size={20} color="#333" style={styles.menuIcon} />
             <Text style={styles.menuText}>실내활동</Text>
@@ -107,7 +155,11 @@ const CommunityHomeScreen = () => {
 
           <TouchableOpacity 
             style={styles.menuItem}
-            onPress={() => goDetail('study', '학업')}
+            onPress={() => goDetail(
+              '학업', 
+              '정보',
+              '학업'
+            )}
           >
             <Ionicons name="people-outline" size={20} color="#333" style={styles.menuIcon} />
             <Text style={styles.menuText}>학업</Text>
@@ -115,7 +167,11 @@ const CommunityHomeScreen = () => {
 
           <TouchableOpacity 
             style={styles.menuItem}
-            onPress={() => goDetail('health', '피트니스•건강')}
+            onPress={() => goDetail(
+              '피트니스•건강', 
+              '정보',
+              '피트니스•건강'
+            )}
           >
             <Ionicons name="people-outline" size={20} color="#333" style={styles.menuIcon} />
             <Text style={styles.menuText}>피트니스•건강</Text>

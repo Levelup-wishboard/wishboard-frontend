@@ -10,6 +10,8 @@ import Header from '../components/Header';
 import WriteButton from '../components/WriteButton';
 import api from '../constants/api';
 
+const BOARD_TYPES = ['정보', '트로피', 'Q&A', '인원모집'];
+
 /* ────────── ① 색상 테이블: 대문자·무공백 키만 보관 ────────── */
 const BOARD_COLORS = {
   정보:   '#93DEFF',
@@ -33,83 +35,167 @@ const toColorKey = (raw = '') => {
 
 const TABS = [
   { key: 'All',     label: 'All' },
-  { key: '정보',     label: '정보게시판' },
-  { key: '트로피',   label: '트로피게시판' },
-  { key: 'Q&A',     label: 'Q&A게시판' },
-  { key: '인원모집', label: '인원모집게시판' },
+  { key: '정보',     label: '정보' },
+  { key: '트로피',   label: '트로피' },
+  { key: 'Q&A',     label: 'Q&A' },
+  { key: '인원모집', label: '인원모집' },
 ];
 
 export default function CommunityDetailScreen() {
   /* ───────────── route 파라미터 ───────────── */
+
   const {
+    communityDiversity,
     communityType,
-    diversityKeyword,
-    fromSearch = false,
-    boardType: initialTab = 'All',
     title,
+    fromSearch = false,
   } = useRoute().params;
+  console.log('▶️ [Route params]', { communityType, communityDiversity, fromSearch });
+
   const navigation = useNavigation();
 
   /* ───────────── state ───────────── */
+ // const initialTab = fromSearch ? communityType : 'All';
+  const initialTab = communityType || 'All';
   const [selectedTab, setSelectedTab] = useState(initialTab);
+
   const [posts,        setPosts]        = useState([]);
-  const [loading,      setLoading]      = useState(false);
+  const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [scrapId, setScrapId] = useState(null);
 
   /* ───────────── 스크랩 여부 조회 ───────────── */
   useEffect(() => {
     api.get('/api/community-scraps')
        .then(({ data }) => {
-         const list = Array.isArray(data) ? data
-                    : Array.isArray(data.content) ? data.content : [];
-         setIsBookmarked(list.some(s => s.communityName === communityType));
+          const list = Array.isArray(data.content) ? data.content : [];
+          const hit  = list.find(s => s.communityName === communityDiversity);
+           if (hit) {
+           setIsBookmarked(true);
+           setScrapId(hit.scrapId);
+         } else {
+           setIsBookmarked(false);
+           setScrapId(null);
+         }
        })
        .catch(e => console.warn('스크랩 조회 실패', e));
-  }, [communityType]);
+  }, [communityDiversity]);
 
-  /* ───────────── 게시글 목록 조회 ───────────── */
-  useEffect(() => {
-    setLoading(true); setError(null);
+useEffect(() => {
+  setLoading(true);
+  setError(null);
 
-    if (fromSearch) {
-      api.get(`/api/communities/${encodeURIComponent(communityType)}`, {
-        params: { page: 0, size: 100 },
+  if (fromSearch) {
+    // ─── 검색 분기 ───
+    if (selectedTab === 'All') {
+      // “All” 탭: diversity 안의 모든 게시판 글 합치기
+      Promise.all(
+        BOARD_TYPES.map(type =>
+          api.get(`/api/communities/${encodeURIComponent(type)}`, { params: { page: 0, size: 100, communityDiversity } 
+        })
+          .then(res => 
+            (res.data.content || [])
+           .map(p => ({ ...p, communityType: type })) 
+          )
+        )
+      )
+      .then(results => setPosts(results.flat()))
+      .catch(e => {
+        console.warn('불러오기 실패', e);
+        setError('불러오기 실패');
+        setPosts([]);
       })
-      .then(({ data }) => {
-        let list = data.content || [];
-        list = list.filter(p => p.diversity === diversityKeyword);
-        if (selectedTab !== 'All') list = list.filter(p => p.boardType === selectedTab);
-        setPosts(list);
-      })
-      .catch(e => { console.warn(e); setError('불러오기 실패'); setPosts([]); })
       .finally(() => setLoading(false));
-    } else {
-          const params = { communityType, page:0};
-            if (selectedTab !== 'All') {
-              params.communityType = selectedTab;      // 정보·트로피·Q&A·인원모집
-            }
 
-      api.get('/api/posts', { params })
-       .then(({ data }) => setPosts(data.content || []))
-       .catch(e => {
-         console.warn('불러오기 실패', e);
-         setError(e.message);
-         setPosts([]);
+    } else {
+      // “특정 탭” 분기: 해당 탭 + diversity
+      const endpoint = `/api/communities/${encodeURIComponent(selectedTab)}`;
+      const params   = { page: 0, size: 100 };
+
+      console.log('▶️ fetching (search single)', endpoint, params);
+      api.get(endpoint, { params })
+        .then(({ data }) => {
+           // diversity 키워드로 필터링
+         const filtered = (data.content || [])
+           .filter(post => post.diversity === communityDiversity);
+          setPosts(filtered);
+        })
+        .catch(e => {
+          console.warn('불러오기 실패', e);
+          setError('불러오기 실패');
+          setPosts([]);
+        })
+        .finally(() => setLoading(false));
+    }
+
+  }  else {
+     // ─── 홈→디테일 분기 ───
+   if (selectedTab === 'All') {
+     // All 탭: diversity 안의 모든 게시판 글을 /
+     // Promise.all로 병렬 조회 → 합치기
+     Promise.all(
+       BOARD_TYPES.map(type =>
+         api.get(
+           `/api/communities/${encodeURIComponent(type)}`,
+           { params: { page: 0, size: 20 } }
+         ).then(res =>
+           // 받은 content 중 diversity 필터
+           (res.data.content || [])
+             .filter(p => p.diversity === communityDiversity)
+             .map(p => ({ ...p, communityType: type }))
+         )
+       )
+     )
+     .then(results => setPosts(results.flat()))
+     .catch(e => {
+       console.warn('불러오기 실패', e)
+       setError('불러오기 실패')
+       setPosts([])
+     })
+     .finally(() => setLoading(false))
+
+   } else {
+     // 수정: /api/communities/{탭} 로 호출
+     api.get(
+       `/api/communities/${encodeURIComponent(selectedTab)}`,
+       { params: { page: 0, size: 20 } }
+     )
+       .then(({ data }) => {
+        // diversity 필터 적용
+        setPosts(
+          (data.content || [])
+            .filter(p => p.diversity === communityDiversity)
+        );
        })
-       .finally(() => setLoading(false));
+     .catch(e => {
+       console.warn('불러오기 실패', e)
+       setError('불러오기 실패')
+       setPosts([])
+     })
+     .finally(() => setLoading(false))
    }
-  }, [communityType, diversityKeyword, fromSearch, selectedTab]);
+}
+}, [communityDiversity, selectedTab, fromSearch]);
+
+
+
 
   /* ───────────── 북마크 토글 ───────────── */
   const toggleBookmark = () => {
     if (isBookmarked) {
-      api.delete(`/api/community-scraps/${encodeURIComponent(communityType)}`)
-         .then(() => setIsBookmarked(false))
+      api.delete(`/api/community-scraps/${encodeURIComponent(communityDiversity)}`)
+         .then(() => {
+        setIsBookmarked(false);
+        setScrapId(null);
+      })
          .catch(e => console.warn('북마크 해제 실패', e));
     } else {
-      api.post('/api/community-scraps', { communityName: communityType })
-         .then(() => setIsBookmarked(true))
+      api.post('/api/community-scraps', { communityName: communityDiversity })
+          .then(({ data }) => {
+            setIsBookmarked(true);
+            setScrapId(data.scrapId);  // POST 응답이 새로 생성된 scrapId 를 반환한다면
+          })
          .catch(e => console.warn('북마크 추가 실패', e));
     }
   };
@@ -124,9 +210,7 @@ export default function CommunityDetailScreen() {
         isBookmarked={isBookmarked}
         onBookmarkPress={toggleBookmark}
       />
-
-      {fromSearch && (
-        <View style={styles.tabContainer}>
+      <View style={styles.tabContainer}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -138,7 +222,10 @@ export default function CommunityDetailScreen() {
                 <TouchableOpacity
                   key={key}
                   style={[styles.tabButton, active && styles.tabButtonActive]}
-                  onPress={() => setSelectedTab(key)}
+                  onPress={() => {
+                    console.log('▶️ [Tab pressed]', key);
+                    setSelectedTab(key);
+                  }}
                 >
                   <Text style={[styles.tabText, active && styles.tabTextActive]}>
                     {label}
@@ -148,7 +235,8 @@ export default function CommunityDetailScreen() {
             })}
           </ScrollView>
         </View>
-      )}
+
+    
 
       {loading && <ActivityIndicator style={{ margin: 16 }} />}
       {error   && <Text style={{ color: 'red', padding: 16 }}>{error}</Text>}
@@ -161,24 +249,36 @@ export default function CommunityDetailScreen() {
           <Text style={{ color:'#777', padding:16 }}>게시글이 없습니다.</Text>
         )}
         renderItem={({ item }) => {
-          const colorKey = toColorKey(item.boardType);
-          const color    = BOARD_COLORS[colorKey] || '#666';
+          const firstTag = item.diversity;
+          const secondTag = selectedTab === 'All'
+            ? item.communityType
+            : selectedTab;
+        console.log('▶️ [renderItem]', {
+              diversity: item.diversity,
+              boardType: item.communityType,
+              secondTag,
+            });
+        const colorKey = toColorKey(secondTag);
+        const color    = BOARD_COLORS[colorKey] || '#666';
+        console.log('🔖 secondTag:', secondTag,
+                    '→ colorKey:', colorKey,
+                    '→ color:', color);
           return (
             <TouchableOpacity
               style={styles.postContainer}
               onPress={() =>
                 navigation.navigate('PostDetail', {
-                  communityType: fromSearch ? diversityKeyword : communityType,
+                  communityType: fromSearch ? communityDiversity : communityType,
                   postId: item.communityId,
                 })
               }
             >
               <View style={styles.labelRow}>
                 <View style={[styles.labelBox, styles.detailBox]}>
-                  <Text style={styles.labelText}>{item.diversity}</Text>
+                  <Text style={styles.labelText}>{firstTag}</Text>
                 </View>
                 <View style={[styles.labelBox, { backgroundColor: color }]}>
-                  <Text style={styles.labelText}>{item.boardType}</Text>
+                  <Text style={styles.labelText}>{secondTag}</Text>
                 </View>
               </View>
 
@@ -196,11 +296,20 @@ export default function CommunityDetailScreen() {
         }}
       />
 
+      {/* <WriteButton
+        onPress={() =>
+          navigation.navigate('PostWrite', {
+            communityType: fromSearch ? communityDiversity : communityType,
+            communityTitle: title,
+            defaultBoardTab: selectedTab,
+          })
+        }
+      /> */}
       <WriteButton
         onPress={() =>
           navigation.navigate('PostWrite', {
-            communityType: fromSearch ? diversityKeyword : communityType,
-            communityTitle: title,
+            diversity : communityDiversity,
+            communityType,
             defaultBoardTab: selectedTab,
           })
         }
