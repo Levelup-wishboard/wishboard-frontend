@@ -29,7 +29,7 @@ export default function RegisterScreen() {
     }
 
     try {
-      const response = await axios.post('http://192.168.0.41:8080/users/user', {  //본인 pc ip주소로 바꿔줘야함.
+      const response = await axios.post('http://3.39.187.114:8080/users/user', {  //본인 pc ip주소로 바꿔줘야함.
         userId: username,
         password: password,
         nickName: nickname,
