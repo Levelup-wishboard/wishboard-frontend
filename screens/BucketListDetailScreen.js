@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// screens/BucketListDetailScreen.js
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,129 +10,122 @@ import {
   ScrollView,
   Alert,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getTagColor } from '../constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function BucketListDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const bucketId = route.params?.bucketId;
 
-  const bucket = route.params?.bucket || {
-    id: 1,
-    dday: 'D-30',
-    tag: '배우고싶다',
-    title: '드럼 배우기',
-    reason: '드럼 소리에 매료되어 직접 해보고 싶어짐',
-    vow: '매주 1회 학원 가기',
-    image: require('../assets/images/profile1.png'),
-  };
-
+  const [bucket, setBucket] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCongratsModal, setShowCongratsModal] = useState(false);
 
-  const handleEdit = () => {
-    navigation.navigate('BucketListAdd');
+  const fetchDetail = async () => {
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      const response = await axios.get(`http://3.39.187.114:8080/api/bucketlist/${bucketId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBucket(response.data);
+    } catch (error) {
+      console.error('상세 조회 실패:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = () => {
-    Alert.alert('삭제 확인', '정말 삭제하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      { text: '삭제', onPress: () => navigation.goBack() },
-    ]);
+  const handleDelete = async () => {
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      await axios.delete(`http://3.39.187.114:8080/api/bucketlist/${bucketId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Alert.alert('삭제 완료', '버킷리스트가 삭제되었습니다.');
+      navigation.goBack();
+    } catch (error) {
+      console.error('삭제 실패:', error);
+    }
   };
 
-  const handleCompletePress = () => {
-    setShowConfirmModal(true);
+  const handleComplete = async () => {
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      await axios.post(`http://3.39.187.114:8080/api/bucketlist/${bucketId}/complete`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setShowCongratsModal(true);
+    } catch (error) {
+      console.error('완료 처리 실패:', error);
+    }
   };
 
-  const handleConfirmComplete = () => {
-    setShowConfirmModal(false);
-    setShowCongratsModal(true);
-  };
+  useEffect(() => {
+    fetchDetail();
+  }, []);
 
-  const handleTrophyNavigate = () => {
-    setShowCongratsModal(false);
-    navigation.navigate('Trophy');
-  };
+  if (loading || !bucket) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#FFA726" style={{ marginTop: 50 }} />
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        <View style={styles.headerContent}>
-          <View style={styles.rowTop}>
-            <Text style={styles.dday}>{bucket.dday}</Text>
-            <View style={[styles.tagBox, { backgroundColor: getTagColor(bucket.tag) }]}>
-              <Text style={styles.tagText}>{bucket.tag}</Text>
-            </View>
-          </View>
-          <View style={styles.rowMid}>
-            <Image
-              source={
-                typeof bucket.image === 'string'
-                  ? { uri: bucket.image }
-                  : bucket.image
-              }
-              style={styles.image}
-            />
-            <Text style={styles.title}>{bucket.title}</Text>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        <Image
+          source={bucket.image ? { uri: bucket.image } : require('../assets/images/default.png')}
+          style={styles.image}
+        />
+        <View style={styles.header}>
+          <Text style={styles.dday}>{bucket.dday}</Text>
+          <Text style={[styles.tag, { backgroundColor: getTagColor(bucket.category) }]}>
+            {bucket.category}
+          </Text>
+          <Text style={styles.title}>{bucket.title}</Text>
         </View>
 
-        <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={handleEdit}>
-            <Ionicons name="pencil-outline" size={22} color="#FBA834" style={styles.icon} />
+        <Text style={styles.sectionTitle}>이유</Text>
+        <Text style={styles.sectionContent}>{bucket.reason || '없음'}</Text>
+
+        <Text style={styles.sectionTitle}>다짐</Text>
+        <Text style={styles.sectionContent}>{bucket.resolution || '없음'}</Text>
+
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('BucketListAdd')}>
+            <Ionicons name="create-outline" size={20} color="#fff" />
+            <Text style={styles.buttonText}>수정</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleDelete}>
-            <Ionicons name="trash-outline" size={22} color="#FBA834" style={styles.icon} />
+          <TouchableOpacity style={styles.deleteButton} onPress={() => setShowConfirmModal(true)}>
+            <Ionicons name="trash-outline" size={20} color="#fff" />
+            <Text style={styles.buttonText}>삭제</Text>
           </TouchableOpacity>
         </View>
-      </View>
 
-      <ScrollView contentContainerStyle={styles.contentWrapper}>
-        <Text style={styles.label}>이 꿈을 꾸게 된 이유</Text>
-        <View style={styles.textBox}>
-          <Text>{bucket.reason}</Text>
-        </View>
-
-        <Text style={styles.label}>포기하지 않기 위한 나만의 다짐</Text>
-        <View style={styles.textBox}>
-          <Text>{bucket.vow}</Text>
-        </View>
-
-        <TouchableOpacity
-  style={styles.recordButton}
-  onPress={() => navigation.navigate('ChallengeRecord', { bucket })}
->
-  <Text style={styles.buttonText}>오늘의 도전 기록하기</Text>
-</TouchableOpacity>
-        <TouchableOpacity style={styles.completeButton} onPress={handleCompletePress}>
-          <Text style={styles.buttonText}>달성 완료</Text>
+        <TouchableOpacity style={styles.completeButton} onPress={handleComplete}>
+          <Text style={styles.completeText}>완료로 표시하기</Text>
         </TouchableOpacity>
       </ScrollView>
 
       <Modal visible={showConfirmModal} transparent animationType="fade">
-        <View style={styles.modalWrapper}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>달성완료</Text>
-            <Text style={styles.modalText}>버킷리스트를 달성하셨나요?</Text>
-            <View style={styles.modalButtonRow}>
-              <TouchableOpacity
-                style={styles.modalConfirmButton}
-                onPress={handleConfirmComplete}
-              >
-                <Text style={styles.modalButtonText}>예</Text>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text>정말 삭제하시겠습니까?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setShowConfirmModal(false)}>
+                <Text style={styles.cancelText}>취소</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.modalCancelButton}
-                onPress={() => setShowConfirmModal(false)}
-              >
-                <Text style={styles.modalButtonText}>취소</Text>
+              <TouchableOpacity onPress={handleDelete}>
+                <Text style={styles.confirmText}>삭제</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -139,18 +133,11 @@ export default function BucketListDetailScreen() {
       </Modal>
 
       <Modal visible={showCongratsModal} transparent animationType="fade">
-        <View style={styles.modalWrapper}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>버킷리스트 달성을 축하해요!</Text>
-            <Image
-              source={require('../assets/images/trophy.png')}
-              style={{ width: 64, height: 64, marginVertical: 16 }}
-            />
-            <TouchableOpacity
-              style={styles.trophyButton}
-              onPress={handleTrophyNavigate}
-            >
-              <Text style={styles.buttonText}>트로피 보러가기</Text>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text>🎉 도전 완료! 축하합니다!</Text>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Text style={styles.confirmText}>확인</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -160,148 +147,69 @@ export default function BucketListDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
-  header: {
-    backgroundColor: '#2F327D',
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerContent: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  rowTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 6,
-  },
-  rowMid: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  dday: {
-    color: '#000',
-    fontSize: 10,
-    backgroundColor: '#fff',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  tagBox: {
-    borderRadius: 10,
+  container: { flex: 1, backgroundColor: '#fff' },
+  image: { width: '100%', height: 200 },
+  header: { padding: 20 },
+  dday: { fontSize: 14, color: '#888' },
+  tag: {
+    alignSelf: 'flex-start',
     paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  tagText: {
-    fontSize: 10,
-    color: '#000',
-  },
-  image: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginVertical: 6,
     color: '#fff',
+    fontSize: 12,
   },
-  headerIcons: {
+  title: { fontSize: 20, fontWeight: 'bold' },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', marginTop: 20, paddingHorizontal: 20 },
+  sectionContent: { paddingHorizontal: 20, marginTop: 6, fontSize: 14 },
+  buttonRow: {
     flexDirection: 'row',
-    gap: 8,
-  },
-  icon: {
-    marginLeft: 8,
-  },
-  contentWrapper: {
-    padding: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 6,
-    color: '#000',
-  },
-  textBox: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    minHeight: 60,
-  },
-  recordButton: {
-    backgroundColor: '#FBA834',
-    paddingVertical: 14,
-    borderRadius: 24,
-    alignItems: 'center',
+    justifyContent: 'space-around',
     marginTop: 30,
   },
-  completeButton: {
-    backgroundColor: '#FBA834',
-    paddingVertical: 14,
-    borderRadius: 24,
+  editButton: {
+    backgroundColor: '#FFA726',
+    padding: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  deleteButton: {
+    backgroundColor: '#E53935',
+    padding: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  modalWrapper: {
+  buttonText: { color: '#fff', marginLeft: 6 },
+  completeButton: {
+    backgroundColor: '#43A047',
+    margin: 20,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  completeText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: '#000000aa',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalBox: {
+  modalContent: {
     backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 20,
-    width: 280,
+    padding: 30,
+    borderRadius: 10,
+    width: '80%',
     alignItems: 'center',
-    elevation: 5,
   },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  modalText: {
-    fontSize: 14,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  modalButtonRow: {
+  modalButtons: {
     flexDirection: 'row',
-    gap: 12,
+    marginTop: 20,
+    width: '100%',
+    justifyContent: 'space-around',
   },
-  modalConfirmButton: {
-    backgroundColor: '#FBA834',
-    borderRadius: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-  },
-  modalCancelButton: {
-    backgroundColor: '#ccc',
-    borderRadius: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-  },
-  modalButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  trophyButton: {
-    backgroundColor: '#FBA834',
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
+  cancelText: { color: '#888' },
+  confirmText: { color: '#E53935', fontWeight: 'bold' },
 });
-

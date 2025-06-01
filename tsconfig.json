@@ -11,5 +11,5 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
-  ]
+, "components/WishboardItem.js", "components/WishboardGrid.js", "components/UserProfile.js", "screens/Home.js", "components/PopularBucketList.js", "components/CommunityPosts.js", "components/CommunityPost.js", "navigation/AppNavigator.js"  ]
 }
