@@ -292,13 +292,24 @@ export default function PostDetailScreen() {
   };
 
   // ---- 트로피 버튼 ----
-  const handleTrophyPress = () => {
-    if (!post?.bucketId) {
-      alert('트로피 정보가 없습니다.');
-      return;
+const handleTrophyPress = () => {
+  if (!post?.bucketId) {
+    alert('트로피 정보가 없습니다.');
+    return;
+  }
+  navigation.navigate('Trophy', { // ★ TrophyStack → Trophy 로 변경!
+    screen: 'TrophyDetailPage1',
+    params: {
+      trophy: {
+        bucketId: post.bucketId,
+        title: post.title,
+        category: post.diversity,
+        createdAt: post.createdAt,
+      }
     }
-    navigation.navigate('BucketListDetail', { bucketId: post.bucketId });
-  };
+  });
+};
+
 
   // ---- 헤더 아래 게시글 info 렌더 ----
   const renderHeader = () => (

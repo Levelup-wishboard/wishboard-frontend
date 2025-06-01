@@ -140,6 +140,8 @@ const handleSubmit = async () => {
       bucketId,
     };
 
+     console.log('handleSubmit! mode:', mode, 'postId:', postId, 'payload:', payload);
+
     // 무조건 POST (새 글 등록)
     await api.post(
       '/api/posts',
@@ -151,7 +153,7 @@ const handleSubmit = async () => {
         }
       }
     );
-    alert('글 수정 완료');
+    alert('글 작성(수정) 완료');
     navigation.goBack();
   } catch (e) {
     console.warn('글 등록/수정 실패:', e?.response?.data || e.message);
