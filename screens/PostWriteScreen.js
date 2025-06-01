@@ -1,125 +1,175 @@
-// screens/PostWriteScreen.js
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-  Modal,
-  FlatList,
-  Pressable,
-  Platform
+  View, Text, TextInput, StyleSheet, TouchableOpacity,
+  ScrollView, Image, Modal, FlatList, Pressable
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PrizeImg from '../assets/images/prize.png';
 import * as ImagePicker from 'expo-image-picker';
+import api from '../constants/api';    
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sampleTrophies } from '../mock/data';
 
 export default function PostWriteScreen() {
   const navigation = useNavigation();
-  const { 
-    communityId, 
-    communityTitle, 
-    defaultBoardTab,
+  const {
     mode,
-    postData,
-    onSave,
-  } = useRoute().params;
+    postId,
+    postData = {},
+    defaultBoardTab = '',
+    diversity = '',
+  } = useRoute().params || {};
+  console.log('mode:', mode, 'postId:', postId, 'postData:', postData);
 
-  /* ---- 상태 ---- */
+  // === 1. state 초기화 ===
   const [board, setBoard] = useState(
-    postData?.board  || defaultBoardTab?.replace('게시판', '') || '정보'
+    postData.communityType || defaultBoardTab.replace('게시판', '') || '정보'
   );
-  const [detail, setDetail] = useState(postData?.detail  || '');
-  const [title, setTitle] = useState(postData?.title   || '');
-  const [content, setContent] = useState(postData?.content || '');
-  const [images, setImages] = useState(postData?.images  || []);              // {uri,...} 배열
-  const [openChat, setOpenChat] = useState('');
+  const [detail, setDetail] = useState(postData.type || '');
+  const [title, setTitle] = useState(postData.title || '');
+  const [content, setContent] = useState(postData.content || '');
+  const [images, setImages] = useState(postData.images || []);
+  const [openChat, setOpenChat] = useState(postData.openChat || '');
+  const [bucketId, setBucketId] = useState(postData.bucketId || 1); // 추후 트로피 연동
+  const [selectedTrophy, setSelectedTrophy] = useState(null);
+  const [trophyModalVisible, setTrophyModalVisible] = useState(false);
 
-   /* ---- 트로피 관련 ---- */
-   const [selectedTrophy, setSelectedTrophy] = useState(null);
-   const [trophyModalVisible, setTrophyModalVisible] = useState(false);
-
-  /* ---- 사진 선택 (placeholder) ---- */
- /* ----- 이미지 선택 ----- */
-const pickImage = async () => {
+  // === 2. 이미지 추가 ===
+  const pickImage = async () => {
     try {
-      // 권한
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         alert('사진 접근 권한이 필요합니다!');
         return;
       }
-  
-      // 이미지 선택
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.8,
         allowsMultipleSelection: false,
         aspect: [4, 3],
       });
-  
       if (!result.canceled) {
-        const picked = result.assets[0]; // {uri,width,height,...}
-  
-        // 최대 6장
-        setImages((prev) =>
-          prev.length < 6 ? [...prev, picked] : prev
-        );
+        const picked = result.assets[0];
+        setImages((prev) => prev.length < 6 ? [...prev, picked] : prev);
       }
     } catch (e) {
       console.warn(e);
     }
   };
-
   const handleRemoveImage = (idx) =>
     setImages((prev) => prev.filter((_, i) => i !== idx));
   
-
+  // === 3. 트로피 선택 ===
   const handleTrophyImport = () => setTrophyModalVisible(true);
-
   const handleChooseTrophy = (trophy) => {
     setSelectedTrophy(trophy);
     setTrophyModalVisible(false);
+    // setBucketId(trophy.bucketId); // 추후 구현
   };
 
+  // === 4. 등록/수정 요청 ===
+  // const handleSubmit = async () => {
+  //   try {
+  //     const token = await AsyncStorage.getItem('accessToken');
+  //     if (!token) {
+  //       alert('로그인 토큰이 없습니다. 다시 로그인 해주세요!');
+  //       return;
+  //     }
 
-  /* ---- 저장 ---- */
-  const handleSubmit = () => {
-    console.log({
-      communityId,
-      board,
-      detail,
+  //     // *** payload 정의 (서버 요구 포맷에 맞게) ***
+  //     const payload = {
+  //       type: detail,              // "분류" 입력값 (예: "시험", "일반")
+  //       communityType: board,      // 게시판 탭명
+  //       diversity,                 // 최상위 분류 (params)
+  //       title,
+  //       content,
+  //       bucketId,
+  //     };
+  //     console.log('handleSubmit! mode:', mode, 'postId:', postId, 'payload:', payload);
+
+  //     if (mode === 'edit' && postId) {
+  //       // PATCH: 수정
+  //       await api.patch(
+  //         `/api/posts/${postId}`,
+  //         payload,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             'Content-Type': 'application/json',
+  //           }
+  //         }
+  //       );
+  //       alert('글 수정 완료!');
+  //       navigation.goBack();
+  //     } else {
+  //       // POST: 새 글 등록
+  //       await api.post(
+  //         '/api/posts',
+  //         payload,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             'Content-Type': 'application/json',
+  //           }
+  //         }
+  //       );
+  //       alert('글 등록 성공!');
+  //       navigation.goBack();
+  //     }
+  //   } catch (e) {
+  //     console.warn('글 등록/수정 실패:', e?.response?.data || e.message);
+  //     alert('글 등록/수정 실패: ' + (e?.response?.data?.message || e.message));
+  //   }
+  // };
+const handleSubmit = async () => {
+  try {
+    const token = await AsyncStorage.getItem('accessToken');
+    if (!token) {
+      alert('로그인 토큰이 없습니다. 다시 로그인 해주세요!');
+      return;
+    }
+
+    const payload = {
+      type: detail,
+      communityType: board,
+      diversity,
       title,
       content,
-      images,
-      openChat,
-      selectedTrophy,
-    });
-    const payload = { board, detail, title, content, images, openChat, selectedTrophy };
-    if (mode === 'edit' && onSave){
-      onSave(payload); 
-    } else{
-      console.log('새 글 저장', payload);
-    }
-    navigation.goBack();
-  };
+      bucketId,
+    };
 
-  /* ---- UI ---- */
-  const isTrophy  = board === '트로피';
+     console.log('handleSubmit! mode:', mode, 'postId:', postId, 'payload:', payload);
+
+    // 무조건 POST (새 글 등록)
+    await api.post(
+      '/api/posts',
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+    alert('글 작성(수정) 완료');
+    navigation.goBack();
+  } catch (e) {
+    console.warn('글 등록/수정 실패:', e?.response?.data || e.message);
+    alert('글 등록/수정 실패: ' + (e?.response?.data?.message || e.message));
+  }
+};
+
+  const isTrophy = board === '트로피';
   const isRecruit = board === '인원모집';
 
+  // === 5. UI ===
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-      <Header showBackButton leftContent={mode === 'edit' ? '글 수정' : (communityTitle || '글쓰기')} />
-
+      <Header showBackButton leftContent={mode === 'edit' ? '글 수정' : '글쓰기'} />
       <ScrollView contentContainerStyle={styles.form}>
-        {/* 게시판 선택 */}
+        {/* 게시판 */}
         <Text style={styles.label}>게시판</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {['정보', 'Q&A', '인원모집', '트로피'].map((b) => (
@@ -128,26 +178,24 @@ const pickImage = async () => {
               style={[styles.boardChip, board === b && styles.boardChipActive]}
               onPress={() => setBoard(b)}
             >
-              <Text
-                style={[
-                  styles.boardChipText,
-                  board === b && styles.boardChipTextActive,
-                ]}
-              >
+              <Text style={[
+                styles.boardChipText,
+                board === b && styles.boardChipTextActive,
+              ]}>
                 {b}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
-
-        {/* 분류, 제목, 본문 */}
+        {/* 분류 */}
         <Text style={styles.label}>분류</Text>
         <TextInput
           style={styles.input}
-          placeholder="예) 수상 스키"
+          placeholder="예) 수상 스키, 시험, 일상"
           value={detail}
           onChangeText={setDetail}
         />
+        {/* 제목 */}
         <Text style={styles.label}>제목</Text>
         <TextInput
           style={[styles.input, { fontWeight: '600' }]}
@@ -155,6 +203,7 @@ const pickImage = async () => {
           value={title}
           onChangeText={setTitle}
         />
+        {/* 본문 */}
         <Text style={styles.label}>본문</Text>
         <TextInput
           style={[styles.input, { height: 160 }]}
@@ -163,31 +212,21 @@ const pickImage = async () => {
           onChangeText={setContent}
           multiline
         />
-
-        {/* ---------- 트로피 전용 ---------- */}
+        {/* 트로피 전용 UI */}
         {isTrophy ? (
           <>
             <Text style={styles.label}>트로피 선택하기</Text>
-
-            {selectedTrophy ? (
-              /* 선택 완료된 트로피 카드 */
+            {selectedTrophy && (
               <View style={styles.trophyCardSelected}>
                 <Image source={PrizeImg} style={styles.trophyIcon} />
                 <View style={{ marginLeft: 8 }}>
-                  <Text style={styles.trophyCategory}>
-                    {selectedTrophy.category}
-                  </Text>
+                  <Text style={styles.trophyCategory}>{selectedTrophy.category}</Text>
                   <Text style={styles.trophyTitle}>{selectedTrophy.title}</Text>
-                  <Text style={styles.trophyDate}>
-                    작성일: {selectedTrophy.createdAt}
-                  </Text>
-                  <Text style={styles.trophyDate}>
-                    달성일: {selectedTrophy.achievedAt}
-                  </Text>
+                  <Text style={styles.trophyDate}>작성일: {selectedTrophy.createdAt}</Text>
+                  <Text style={styles.trophyDate}>달성일: {selectedTrophy.achievedAt}</Text>
                 </View>
               </View>
-            ) : null}
-
+            )}
             <TouchableOpacity
               style={styles.trophyBtn}
               onPress={handleTrophyImport}
@@ -199,7 +238,6 @@ const pickImage = async () => {
             </TouchableOpacity>
           </>
         ) : (
-          /* ---------- 사진 전용 ---------- */
           <>
             <Text style={styles.label}>사진 추가 (최대 6장)</Text>
             <View style={styles.imageGrid}>
@@ -223,38 +261,19 @@ const pickImage = async () => {
             </View>
           </>
         )}
-        {/* 오픈카톡 링크 (인원모집 전용) */}
-        {isRecruit && (
-          <>
-            <Text style={styles.label}>오픈카톡방 링크</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="https://open.kakao.com/..."
-              value={openChat}
-              onChangeText={setOpenChat}
-              autoCapitalize="none"
-            />
-          </>
-        )}
-
-        {/* 게시하기 버튼 */}
+        
         <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
           <Text style={styles.submitText}>게시하기</Text>
         </TouchableOpacity>
       </ScrollView>
-
-      {/* ------------- 트로피 선택 Modal ------------- */}
+      {/* 트로피 선택 모달 */}
       <Modal
         visible={trophyModalVisible}
         transparent
         animationType="fade"
         onRequestClose={() => setTrophyModalVisible(false)}
       >
-        <Pressable
-          style={styles.modalBackdrop}
-          onPress={() => setTrophyModalVisible(false)}
-        />
-
+        <Pressable style={styles.modalBackdrop} onPress={() => setTrophyModalVisible(false)} />
         <View style={styles.modalBox}>
           <FlatList
             data={sampleTrophies}
@@ -264,27 +283,22 @@ const pickImage = async () => {
                 style={styles.trophyCard}
                 onPress={() => handleChooseTrophy(item)}
               >
-                {/* <Ionicons name="trophy" size={36} color="#FBA834" /> */}
                 <Image source={PrizeImg} style={styles.trophyIcon} />
                 <View style={{ marginLeft: 8 }}>
                   <Text style={styles.trophyCategory}>{item.category}</Text>
                   <Text style={styles.trophyTitle}>{item.title}</Text>
-                  <Text style={styles.trophyDate}>
-                    작성일: {item.createdAt}
-                  </Text>
-                  <Text style={styles.trophyDate}>
-                    달성일: {item.achievedAt}
-                  </Text>
+                  <Text style={styles.trophyDate}>작성일: {item.createdAt}</Text>
+                  <Text style={styles.trophyDate}>달성일: {item.achievedAt}</Text>
                 </View>
               </TouchableOpacity>
             )}
           />
         </View>
       </Modal>
-
     </View>
   );
 }
+
 
 /* ---------------- 스타일 ---------------- */
 const styles = StyleSheet.create({
