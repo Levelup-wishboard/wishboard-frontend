@@ -71,7 +71,7 @@ export default function TrophyScreen({ navigation }) {
               <Text style={styles.trophyText}>{trophies.length}</Text>
               <Text style={styles.progressText}>/10</Text>
             </View>
-          {trophies.length > 0 && (
+          {trophies.length >= 0 && (
             <Image
               source={require('../assets/images/trophy.png')}
               style={styles.cardTrophy}
