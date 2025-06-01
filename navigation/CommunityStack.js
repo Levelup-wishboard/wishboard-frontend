@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CommunityHomeScreen from '../screens/CommunityHomeScreen';
 import CommunityDetailScreen from '../screens/CommunityDetailScreen';
 import PostDetailScreen from '../screens/PostDetailScreen';
-import PostWriteScreen from '../screens/PostWriteScreen'
+import PostWriteScreen from '../screens/PostWriteScreen';
 import KeywordRegisterScreen from '../screens/KeywordRegisterScreen';
 import SearchCommunityScreen from '../screens/SearchCommunityScreen';
 import CommunityCreateScreen from '../screens/CommunityCreateScreen';

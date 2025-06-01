@@ -1,59 +1,106 @@
 // screens/AIRecommend.js
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-const bucketListData = [
-  {
-    id: '1',
-    image: require('../assets/images/bungee.png'),
-    title: '해외 열기구 페스티벌 참가하기',
-    author: '나나',
-    likes: 10,
-    comments: 10,
-    time: '18:30',
-  },
-  {
-    id: '2',
-    image: require('../assets/images/bungee.png'),
-    title: '해외 열기구 페스티벌 참가하기',
-    author: '나나',
-    likes: 10,
-    comments: 10,
-    time: '18:30',
-  },
-];
+// const bucketListData = [
+//   {
+//     id: '1',
+//     image: require('../assets/images/bungee.png'),
+//     title: '해외 열기구 페스티벌 참가하기',
+//     author: '나나',
+//     likes: 10,
+//     comments: 10,
+//     time: '18:30',
+//   },
+//   {
+//     id: '2',
+//     image: require('../assets/images/bungee.png'),
+//     title: '해외 열기구 페스티벌 참가하기',
+//     author: '나나',
+//     likes: 10,
+//     comments: 10,
+//     time: '18:30',
+//   },
+// ];
 
 const AIRecommend = ({ navigation }) => {
+  const [bucketListData, setBucketListData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  const fetchRecommendations = async () => {
+    try {
+      setLoading(true); // 로딩 시작
+      const token = await AsyncStorage.getItem('accessToken');
+      if (!token) {
+        Alert.alert('인증 오류', '로그인이 필요합니다.');
+        return;
+      }
+
+      const response = await axios.post('http://3.39.187.114:8080/ai/recommend', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setBucketListData(response.data.recommendations);
+    } catch (error) {
+      console.error('추천 목록 가져오기 실패:', error);
+      Alert.alert('오류', '추천 버킷리스트를 불러오지 못했습니다.');
+    } finally {
+      setLoading(false); // 로딩 종료
+    }
+  };
+
+  fetchRecommendations();
+}, []);
+
+if (loading) {
+  return (
+    <View style={styles.loadingContainer}>
+      <Text style={styles.loadingText}>AI 추천을 불러오는 중...</Text>
+      <ActivityIndicator size="large" color="#333A73" />
+    </View>
+  );
+}
   const renderItem = ({ item }) => (
-    // 이동페이지 수정해야함.
-    <TouchableOpacity style={styles.card} onPress={() =>
-      navigation.navigate('HallOfFameDetailScreen', {
-        name: item.author,
-        userId: item.id,
-        postId: item.id, 
-        origin: 'ai', 
-      })
-    }>
-      <Image source={item.image} style={styles.thumbnail} />
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => {
+        if (item.category === 'AI 추천') {
+          Alert.alert('이동 불가', 'AI 추천 태그는 상세 페이지가 없습니다.');
+          return;
+        }
+
+        navigation.navigate('CommunityDetail', {
+          communityId: item.communityId,
+          title: item.title
+        });
+      }}
+    >
+      <Image source={require('../assets/images/bungee.png')} style={styles.thumbnail} />
       <View style={styles.cardContent}>
         <View style={styles.tag}>
-          <Text style={styles.tagText}>해보고싶다</Text>
+          <Text style={styles.tagText}>{item.category || 'AI 추천'}</Text>
         </View>
         <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.author}>{item.author}</Text>
+        <Text style={styles.author}>{item.authorName}</Text>
         <View style={styles.metaInfo}>
           <FontAwesome name="thumbs-o-up" size={14} color="gray" />
-          <Text style={styles.metaText}>{item.likes}</Text>
+          <Text style={styles.metaText}>{item.likeCount}</Text>
           <MaterialCommunityIcons name="comment-outline" size={14} color="gray" style={styles.metaIcon} />
-          <Text style={styles.metaText}>{item.comments}</Text>
-          <Text style={styles.metaText}>{item.time}</Text>
+          <Text style={styles.metaText}>{item.commentCount}</Text>
+          {/* <Text style={styles.metaText}>{item.time}</Text> */}
         </View>
       </View>
     </TouchableOpacity>
   );
 
   return (
+    
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -68,7 +115,7 @@ const AIRecommend = ({ navigation }) => {
       <FlatList
         data={bucketListData}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
     </View>
@@ -155,6 +202,18 @@ const styles = StyleSheet.create({
   metaIcon: {
     marginLeft: 8,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    fontSize: 16,
+    marginBottom: 12,
+    color: '#333A73',
+  },
+  
 });
 
 export default AIRecommend;
