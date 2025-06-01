@@ -1,22 +1,78 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert  } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+const CATEGORY_COLORS = {
+  '해보고싶다': '#93DEFF',
+  '배우고싶다': '#FF9393',
+  '되고싶다': '#93FFC9',
+  '갖고싶다': '#FFFF93',
+  '가보고싶다': '#CC93FF',
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+};
 
 export default function HallOfFameDetailScreen({ route, navigation }) {
-  const { name, userId, postId, origin } = route.params;
+  const { item  } = route.params;
+  
+  const [trophy, setTrophy] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrophyDetail = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+          Alert.alert('로그인 필요', '다시 로그인 해주세요.');
+          return;
+        }
+
+        const response = await axios.get(`http://3.39.187.114:8080/HallOfFame/detail/${item.bucketId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        setTrophy(response.data);
+      } catch (error) {
+        console.error('상세정보 불러오기 실패:', error);
+        Alert.alert('오류', '상세 정보를 불러올 수 없습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrophyDetail();
+  }, [item.bucketId]);
 
   // 예시: 해당 유저의 트로피 정보
-  const trophy = {
-    category: '해보고싶다',
-    color: '#93DEFF',
-    title: '열기구 타기',
-    createdAt: '2024.04.21',
-    targetDate: '2025.02.14',
-  };
+  // const trophy = {
+  //   category: '해보고싶다',
+  //   color: '#93DEFF',
+  //   title: '열기구 타기',
+  //   createdAt: '2024.04.21',
+  //   targetDate: '2025.02.14',
+  // };
 
-  const reason = '여행 중 열기구를 보고 꼭 타보고 싶었어요.';
-  const promise = '끝까지 도전해서 꼭 달성할 거예요!';
-  const imageUri = require('../assets/images/bungee.png');
-
+  // const reason = '여행 중 열기구를 보고 꼭 타보고 싶었어요.';
+  // const promise = '끝까지 도전해서 꼭 달성할 거예요!';
+  // const imageUri = require('../assets/images/bungee.png');
+  if (!trophy) {
+    return (
+      <View style={styles.wrapper}>
+        <Text style={{ padding: 20, textAlign: 'center' }}>로딩 중...</Text>
+      </View>
+    );
+  }
+  
   return (
     <View style={styles.wrapper}>
       <View style={styles.header}>
@@ -28,41 +84,43 @@ export default function HallOfFameDetailScreen({ route, navigation }) {
           <Image source={require('../assets/images/trophy.png')} style={styles.trophy} />
 
           <View style={styles.headerText}>
-            <Text style={styles.firstLine}>{name}님이 달성한 버킷리스트</Text>
+            <Text style={styles.firstLine}>{item.nickname}님이 달성한 버킷리스트</Text>
             <View style={styles.badgeRow}>
-              <Text style={[styles.badge, { backgroundColor: trophy.color }]}>{trophy.category}</Text>
+              <Text style={[styles.badge, { backgroundColor: CATEGORY_COLORS[trophy.category] || '#ccc' }]}>
+                {trophy.category}
+              </Text>
               <Text style={styles.title}>{trophy.title}</Text>
             </View>
-            <Text style={styles.date}>작성일: {trophy.createdAt}</Text>
+            <Text style={styles.date}>작성일: {formatDate(trophy.createdAt)}</Text>
             <View style={styles.bottomBox}>
-                <Text style={styles.date}>달성일: {trophy.targetDate}</Text>
-                {origin === 'ai' && (
+                <Text style={styles.date}>달성일: {formatDate(trophy.achievedAt)}</Text>
+                {/* {origin === 'ai' && (
                     <TouchableOpacity style={styles.aiButton} onPress={() => console.log('AI 버튼 눌림')}>
                         <Text style={styles.aiButtonText}>목표 추가하기</Text>
                     </TouchableOpacity>
-                    )}
+                    )} */}
             </View>
           </View>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.dateLabel}>{trophy.createdAt}</Text>
+        <Text style={styles.dateLabel}>{formatDate(trophy.createdAt)}</Text>
 
         <View style={styles.imageBox}>
-          <Image source={imageUri} style={styles.image} />
+        <Image source={{ uri: trophy.image }} style={styles.image} />
         </View>
 
         <View style={styles.textBox}>
           <Text style={styles.inputLabel}>이 꿈을 꾸게 된 이유</Text>
-          <Text style={styles.textContent}>{reason}</Text>
+          <Text style={styles.textContent}>{trophy.reason}</Text>
 
           <Text style={styles.inputLabel}>포기하지 않기 위한 나만의 다짐</Text>
-          <Text style={styles.textContent}>{promise}</Text>
+          <Text style={styles.textContent}>{trophy.resolution}</Text>
         </View>
         
       </ScrollView>
-      <TouchableOpacity style={styles.fixedButton} onPress={() => navigation.navigate('HallOfFameDetailScreen2', { origin, name, trophy, index: 0 })}>
+      <TouchableOpacity style={styles.fixedButton} onPress={() => navigation.navigate('HallOfFameDetailScreen2', {  name: item.nickname,id: item.bucketId, index: 0 })}>
             <Text style={styles.buttonText}>{'다음 페이지>'}</Text>
         </TouchableOpacity>
     </View>

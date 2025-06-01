@@ -28,18 +28,28 @@ export default function MyPageScreen() {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [nickname, setNickname] = useState('');
-
   useEffect(() => {
     const fetchNickname = async () => {
       try {
-        const savedNickname = await AsyncStorage.getItem('nickname');
-        if (savedNickname) setNickname(savedNickname);
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) return;
+  
+        const response = await axios.get('http://3.39.187.114:8080/users/mypage', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        setNickname(response.data.nickname);
       } catch (err) {
         console.error('닉네임 불러오기 실패', err);
       }
     };
+  
     fetchNickname();
   }, []);
+  
+  
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('accessToken');
@@ -56,7 +66,7 @@ export default function MyPageScreen() {
           </TouchableOpacity>
           <View style={styles.greetingContainer}>
             <Text style={styles.headerText}>환영합니다</Text>
-            <Text style={styles.nameText}>{nickname} 님</Text>
+            <Text style={styles.nameText}>{nickname}</Text>
           </View>
           <View style={{ width: 28 }} />
         </View>

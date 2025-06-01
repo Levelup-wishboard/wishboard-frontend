@@ -1,74 +1,126 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert  } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const diaryData = [
-  {
-    date: '2024.04.21',
-    image: require('../assets/images/bungee.png'),
-    message: '파이팅',
-  },
-  {
-    date: '2024.04.22',
-    image: require('../assets/images/bungee.png'),
-    message: '오늘 잘 해냈다!',
-  },
-  {
-    date: '2024.04.23',
-    image: require('../assets/images/bungee.png'),
-    message: '아자아자---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------!',
-  },
-];
+const CATEGORY_COLORS = {
+  '해보고싶다': '#93DEFF',
+  '배우고싶다': '#FF9393',
+  '되고싶다': '#93FFC9',
+  '갖고싶다': '#FFFF93',
+  '가보고싶다': '#CC93FF',
+};
 
 export default function TropyDetailPage2({ route, navigation }) {
-  const { trophy, index = 0 } = route.params;
-  const entry = diaryData[index];
+  const { trophy, index } = route.params;
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+          Alert.alert("로그인 필요", "다시 로그인 해주세요.");
+          return;
+        }
+        const response = await axios.get(`http://3.39.187.114:8080/trophy/logs/${trophy.bucketId}`, {  //본인 pc ip주소로 바꿔줘야함.
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setLogs(response.data);
+      } catch (error) {
+        console.error("로그 데이터를 불러오지 못했습니다.", error);
+        Alert.alert("오류", "로그 데이터를 불러오는 데 실패했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLogs();
+  }, []);
+
+  if (loading || !logs.length || !logs[index]) {
+    return (
+      <View style={styles.wrapper}>
+        <Text style={{ padding: 20, textAlign: 'center' }}>로딩 중입니다...</Text>
+      </View>
+    );
+  }
+  const entry = logs[index];
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  };
 
   return (
     <View style={styles.wrapper}>
       {/* 상단 영역 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Image source={require('../assets/images/back.png')} style={styles.backIcon} />
-        </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('TrophyScreen')}
+        style={styles.backButton}
+      >
+        <Image source={require('../assets/images/back.png')} style={styles.backIcon} />
+      </TouchableOpacity>
 
         <View style={styles.headerContent}>
-            <Image source={require('../assets/images/trophy.png')} style={styles.trophy} />
+          <Image source={require('../assets/images/trophy.png')} style={styles.trophy} />
 
-            <View style={styles.headerText}>
+          <View style={styles.headerText}>
             <View style={styles.badgeRow}>
-                <Text style={[styles.badge, { backgroundColor: trophy.color }]}>{trophy.category}</Text>
-                <Text style={styles.title}>{trophy.title}</Text>
+              <Text style={[styles.badge, { backgroundColor: CATEGORY_COLORS[entry.category] || '#ccc' }]}>{entry.category}</Text>
+              <Text style={styles.title}>{entry.title}</Text>
             </View>
-            <Text style={styles.date}>작성일: {trophy.createdAt}</Text>
-            <Text style={styles.date}>달성일: {trophy.targetDate}</Text>
-            </View>
-
-            <Image source={require('../assets/images/share.png')} style={styles.share} />
+            <Text style={styles.date}>작성일: {formatDate(entry.bucketCreatedAt)}</Text>
+            <Text style={styles.date}>달성일: {formatDate(entry.achievedAt)}</Text>
+          </View>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('PostWrite', {
+                      selectedTrophy: trophy, 
+                      communityTitle: '커뮤니티',
+                      defaultBoardTab: '트로피게시판',
+                      mode: 'write',
+                    })
+                  }
+                >
+                  <Image source={require('../assets/images/share.png')} style={styles.share} />
+                </TouchableOpacity>
         </View>
       </View>
 
       {/* 본문 스크롤 */}
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.dateLabel}>{entry.date}</Text>
+        <Text style={styles.dateLabel}>{formatDate(entry.logCreatedAt)}</Text>
 
         <View style={styles.imageBox}>
-          <Image source={entry.image} style={styles.image} />
+          {entry.image ? (
+            <Image source={{ uri: entry.image }} style={styles.image} />
+          ) : (
+            <Text>이미지가 없습니다</Text>
+          )}
         </View>
 
-        <Text style={styles.textContent}>{entry.message}</Text>
+        <Text style={styles.textContent}>{entry.content}</Text>
       </ScrollView>
 
       {/* 하단 버튼 고정 */}
       <View style={styles.buttonRow}>
-      <TouchableOpacity
-            style={styles.navButton}
-            onPress={() => navigation.goBack()}
-            >
-            <Text style={styles.navButtonText}>{'< 이전 페이지'}</Text>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.navButtonText}>{'< 이전 페이지'}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          disabled={index === diaryData.length - 1}
-          style={[styles.navButton, index === diaryData.length - 1 && styles.disabled]}
+          disabled={index === logs.length - 1}
+          style={[styles.navButton, index === logs.length - 1 && styles.disabled]}
           onPress={() => navigation.push('TropyDetailPage2', { trophy, index: index + 1 })}
         >
           <Text style={styles.navButtonText}>{'다음 페이지 >'}</Text>
@@ -77,6 +129,7 @@ export default function TropyDetailPage2({ route, navigation }) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   wrapper: { 

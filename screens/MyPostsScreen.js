@@ -47,7 +47,7 @@ export default function MyPostsScreen({ navigation }) {
     const fetchMyPosts = async () => {
       try {
         const token = await AsyncStorage.getItem('accessToken');
-        const res = await axios.get('http://192.168.0.41:8080/users/myWrite', {  //본인 pc ip주소로 바꿔줘야함.
+        const res = await axios.get('http://3.39.187.114:8080/users/myWrite', {  //본인 pc ip주소로 바꿔줘야함.
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 6,
     fontSize: 10,
-    color: '#fff',
+    color:"rgb(0, 0, 0)",
   },
   title: {
     fontSize: 14,

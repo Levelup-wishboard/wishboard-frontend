@@ -29,7 +29,7 @@ export default function EditInfoScreen() {
     try {
       const token = await AsyncStorage.getItem('accessToken');
       const res = await axios.post(
-        'http://192.168.0.41:8080/users/update',  //본인 pc ip주소로 바꿔줘야함.
+        'http://3.39.187.114:8080/users/update',  //본인 pc ip주소로 바꿔줘야함.
         {
           nickName: nickname,
           password: newPassword,
