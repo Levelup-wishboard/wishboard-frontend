@@ -96,7 +96,17 @@ export default function MyPostsScreen({ navigation }) {
 
       <ScrollView contentContainerStyle={styles.content}>
         {posts.map((post) => (
-          <View key={post.communityId} style={styles.card}>
+          <TouchableOpacity
+              key={post.communityId}
+              style={styles.card}
+              onPress={() =>
+                navigation.navigate('PostDetail', {
+                  communityType: post.communityType,
+                  postId: post.communityId,
+                  communityDiversity: post.communityDiversity,  // 이건 필요 시
+                })
+              }
+            >
             <View style={styles.topRow}>
               <View style={styles.badgeContainer}>
                 <View style={styles.badges}>
@@ -131,7 +141,7 @@ export default function MyPostsScreen({ navigation }) {
                 </>
               )}
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </SafeAreaView>

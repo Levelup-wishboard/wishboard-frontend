@@ -85,17 +85,15 @@ export default function TropyDetailPage1({ route, navigation }) {
         <Text style={styles.date}>달성일: {formatDate(trophy.achievedAt)}</Text>
       </View>
 
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('PostWrite', {
-            selectedTrophy: trophy, 
-            communityTitle: '커뮤니티',
-            defaultBoardTab: '트로피게시판',
-            mode: 'write',
-          })
-        }
-      >
-        <Image source={require('../assets/images/share.png')} style={styles.share} />
+       <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate('PostWrite', {
+                            communityType: "트로피", 
+                            defaultBoardTab: '트로피',
+                          })
+                        }
+                      >
+                        <Image source={require('../assets/images/share.png')} style={styles.share} />
       </TouchableOpacity>
 
 

@@ -75,10 +75,12 @@ if (loading) {
           return;
         }
 
-        navigation.navigate('CommunityDetail', {
-          communityId: item.communityId,
-          title: item.title
+        navigation.navigate('PostDetail', {
+          postId: item.communityId,
+          communityType: '트로피',
+          communityDiversity: item.communityDiversity,
         });
+        
       }}
     >
       <Image source={require('../assets/images/bungee.png')} style={styles.thumbnail} />

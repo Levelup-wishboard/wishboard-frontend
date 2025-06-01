@@ -83,10 +83,8 @@ export default function TropyDetailPage2({ route, navigation }) {
                 <TouchableOpacity
                   onPress={() =>
                     navigation.navigate('PostWrite', {
-                      selectedTrophy: trophy, 
-                      communityTitle: '커뮤니티',
-                      defaultBoardTab: '트로피게시판',
-                      mode: 'write',
+                      communityType: "트로피", 
+                      defaultBoardTab: '트로피',
                     })
                   }
                 >

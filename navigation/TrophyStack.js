@@ -10,7 +10,7 @@ import HallOfFameDetailScreen from '../screens/HallOfFameDetailScreen'
 import HallOfFameDetailScreen2 from '../screens/HallOfFameDetailScreen2';
 import PostWriteScreen from '../screens/PostWriteScreen';
 import CommunityDetailScreen from '../screens/CommunityDetailScreen';
-
+import PostDetailScreen from '../screens/PostDetailScreen';
 const Stack = createNativeStackNavigator();
 
 export default function TrophyStack() {
@@ -25,6 +25,7 @@ export default function TrophyStack() {
       <Stack.Screen name="HallOfFameDetailScreen2" component={HallOfFameDetailScreen2} />
       <Stack.Screen name="PostWrite" component={PostWriteScreen} />
       <Stack.Screen name="CommunityDetail" component={CommunityDetailScreen} />
+      <Stack.Screen name="PostDetail" component={PostDetailScreen} />
 
     </Stack.Navigator>
   );
