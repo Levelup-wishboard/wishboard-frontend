@@ -291,42 +291,14 @@ export default function PostDetailScreen() {
     );
   };
 
-  // ---- 트로피 버튼 핸들러 ----
-  const handleTrophyPress = async () => {
-  if (!post?.bucketId) {
-    alert('트로피 정보가 없습니다.');
-    return;
-  }
-
-  try {
-    // fetch로 트로피 정보 불러오기
-    const token = await AsyncStorage.getItem('accessToken');
-    const res = await fetch(`http://localhost:8080/api/trophy/detail/${post.bucketId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || '트로피 정보를 불러올 수 없습니다.');
+  // ---- 트로피 버튼 ----
+  const handleTrophyPress = () => {
+    if (!post?.bucketId) {
+      alert('트로피 정보가 없습니다.');
+      return;
     }
-    const trophyData = await res.json();
-
-    // 데이터를 TrophyDetail 페이지로 전달 (native)
-    if (Platform.OS === 'web') {
-      // 웹은 페이지 이동 (프론트 라우팅)
-      // 트로피 데이터를 전역 state에 저장하거나 쿼리스트링 등으로 전달
-      // (여기선 라우팅만, 실제 데이터는 다시 불러오게)
-      window.location.href = `/trophy/detail/${post.bucketId}`;
-    } else {
-      navigation.navigate('TrophyDetail', { bucketId: post.bucketId, trophyData });
-    }
-  } catch (e) {
-    alert(e.message || '트로피 정보 요청 실패');
-  }
-};
-
+    navigation.navigate('BucketListDetail', { bucketId: post.bucketId });
+  };
 
   // ---- 헤더 아래 게시글 info 렌더 ----
   const renderHeader = () => (
@@ -458,6 +430,7 @@ export default function PostDetailScreen() {
             </View>
             <Text style={styles.commentText}>{reply.content}</Text>
             <Text style={styles.commentDateTime}>{reply.createdAt?.slice(0,10)}</Text>
+            {/* 대댓글 삭제 */}
             {commentMenuVisible === reply.commentId && (
               <Popover
                 isVisible
