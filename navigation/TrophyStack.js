@@ -8,6 +8,8 @@ import AIRecommend from '../screens/AIRecommend';
 import HallOfFameScreen from '../screens/HallOfFameScreen';
 import HallOfFameDetailScreen from '../screens/HallOfFameDetailScreen'
 import HallOfFameDetailScreen2 from '../screens/HallOfFameDetailScreen2';
+import PostWriteScreen from '../screens/PostWriteScreen';
+import CommunityDetailScreen from '../screens/CommunityDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +23,8 @@ export default function TrophyStack() {
       <Stack.Screen name="HallOfFameScreen" component={HallOfFameScreen} />
       <Stack.Screen name="HallOfFameDetailScreen" component={HallOfFameDetailScreen} />
       <Stack.Screen name="HallOfFameDetailScreen2" component={HallOfFameDetailScreen2} />
+      <Stack.Screen name="PostWrite" component={PostWriteScreen} />
+      <Stack.Screen name="CommunityDetail" component={CommunityDetailScreen} />
 
     </Stack.Navigator>
   );

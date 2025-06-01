@@ -1,13 +1,66 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const CATEGORY_COLORS = {
+  '해보고싶다': '#93DEFF',
+  '배우고싶다': '#FF9393',
+  '되고싶다': '#93FFC9',
+  '갖고싶다': '#FFFF93',
+  '가보고싶다': '#CC93FF',
+};
 
 export default function TropyDetailPage1({ route, navigation }) {
-  const { trophy } = route.params;
 
-  // 예시: DB에서 가져온 값
-  const reason = "여행 중 열기구를 보고 꼭 타보고 싶었어요.여행 중 열기구를 보고 꼭 타보고 싶었어요.";
-  const promise = "끝까지 도전해서 꼭 달성할 거예요!끝까지 도전해서 꼭 달성할 거예요!끝까지 도전해서 꼭 달성할 거예요!끝까지 도전해서 꼭 달성할 거예요!끝까지 도전해서 꼭 달성할 거예요!끝까지 도전해서 꼭 달성할 거예요!";
-  const imageUri = require('../assets/images/trophy.png');
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '';
+      return new Date(dateStr).toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+    };
+
+    const { trophy } = route.params;
+    const [reason, setReason] = useState('');
+    const [promise, setPromise] = useState('');
+    const [imageUri, setImageUri] = useState(null);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      const fetchDetail = async () => {
+        try {
+          const token = await AsyncStorage.getItem('accessToken');
+          if (!token) {
+            Alert.alert("로그인 필요", "다시 로그인 해주세요.");
+            return;
+          }
+    
+          const response = await axios.get(
+            `http://3.39.187.114:8080/trophy/detail/${trophy.bucketId}`,  //본인 pc ip주소로 바꿔줘야함.
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          );
+    
+          const data = response.data;
+          setReason(data.reason);
+          setPromise(data.resolution);
+          setImageUri({ uri: data.image });
+        } catch (error) {
+          console.error('버킷리스트 상세 조회 실패:', error);
+          Alert.alert('오류', '버킷리스트 상세 정보를 불러오는 데 실패했습니다.');
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      fetchDetail();
+    }, [trophy.bucketId]);
+  
 
   return (
   <View style={styles.wrapper}>
@@ -22,25 +75,45 @@ export default function TropyDetailPage1({ route, navigation }) {
       <Image source={require('../assets/images/trophy.png')} style={styles.trophy} />
       
       <View style={styles.headerText}>
-        <View style={styles.badgeRow}>
-          <Text style={[styles.badge, { backgroundColor: trophy.color }]}>{trophy.category}</Text>
-          <Text style={styles.title}>{trophy.title}</Text>
-        </View>
-        <Text style={styles.date}>작성일: {trophy.createdAt}</Text>
-        <Text style={styles.date}>달성일: {trophy.targetDate}</Text>
+      <View style={styles.badgeRow}>
+        <Text style={[styles.badge, { backgroundColor: CATEGORY_COLORS[trophy.category] || '#ccc' }]}>
+          {trophy.category}
+        </Text>
+        <Text style={styles.title}>{trophy.title}</Text>
+      </View>
+        <Text style={styles.date}>작성일: {formatDate(trophy.createdAt)}</Text>
+        <Text style={styles.date}>달성일: {formatDate(trophy.achievedAt)}</Text>
       </View>
 
-      <Image source={require('../assets/images/share.png')} style={styles.share} />
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('PostWrite', {
+            selectedTrophy: trophy, 
+            communityTitle: '커뮤니티',
+            defaultBoardTab: '트로피게시판',
+            mode: 'write',
+          })
+        }
+      >
+        <Image source={require('../assets/images/share.png')} style={styles.share} />
+      </TouchableOpacity>
+
+
     </View>
   </View>
 
       {/* 스크롤 콘텐츠 */}
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.dateLabel}>{trophy.createdAt}</Text>
+        <Text style={styles.dateLabel}>{formatDate(trophy.createdAt)}</Text>
 
         <View style={styles.imageBox}>
-          <Image source={{ uri: imageUri }} style={styles.image} />
+          {imageUri ? (
+            <Image source={imageUri} style={styles.image} />
+          ) : (
+            <Text>이미지가 없습니다</Text>
+          )}
         </View>
+
         <View style={styles.textBox}>
           <Text style={styles.inputLabel}>이 꿈을 꾸게 된 이유</Text>
           <Text style={styles.textContent}>{reason}</Text>
@@ -49,6 +122,7 @@ export default function TropyDetailPage1({ route, navigation }) {
           <Text style={styles.textContent}>{promise}</Text>
         </View>
       </ScrollView>
+
 
       {/* 고정 버튼 */}
       <TouchableOpacity style={styles.fixedButton} onPress={() => navigation.navigate('TropyDetailPage2', { trophy, index: 0 })}>

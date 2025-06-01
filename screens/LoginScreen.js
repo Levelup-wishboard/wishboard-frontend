@@ -27,7 +27,6 @@ export default function LoginScreen() {
   
       const response = await axios.post(
         'http://3.39.187.114:8080/login',  //본인 pc ip주소로 바꿔줘야함.
-
         formData.toString(), 
         {
           headers: {
