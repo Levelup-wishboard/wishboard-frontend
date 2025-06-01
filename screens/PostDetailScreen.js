@@ -1,24 +1,21 @@
-import React, { useEffect, useState, useRef,  useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput,
-  Animated, Alert, ActivityIndicator, Platform, 
+  Animated, Alert, ActivityIndicator, Platform,
 } from 'react-native';
-import { useRoute, useNavigation,useFocusEffect } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import Popover from 'react-native-popover-view';
-import api from '../constants/api'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-// 게시판 컬러
 const BOARD_COLORS = {
-  정보:   '#93DEFF',
-  트로피:  '#FFC107',
-  'Q&A':   '#93FFC9',
-  인원모집:  '#FF9393',
-  All:     '#607D8B',
+  정보: '#93DEFF',
+  트로피: '#FFC107',
+  'Q&A': '#93FFC9',
+  인원모집: '#FF9393',
+  All: '#607D8B',
 };
 const toColorKey = (raw = '') => raw?.replace(/\s+/g, '');
 
@@ -26,7 +23,6 @@ export default function PostDetailScreen() {
   const navigation = useNavigation();
   const { postId } = useRoute().params;
 
-  // 상태
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -35,118 +31,99 @@ export default function PostDetailScreen() {
   // 댓글 입력
   const [inputVisible, setInputVisible] = useState(false);
   const [inputText, setInputText] = useState('');
-  const [replyTarget, setReplyTarget] = useState({ type: 'post', id: null });
+  const [replyTarget, setReplyTarget] = useState({ type: 'post', id: null }); // type: post or comment
   const [editMode, setEditMode] = useState(false);
   const [editIds, setEditIds] = useState({ cId: null, rId: null });
   const slideAnim = useRef(new Animated.Value(80)).current;
 
-  // 좋아요(프론트)
-  const [postLiked, setPostLiked] = useState(false);
-  const [postLikes, setPostLikes] = useState(0);
-
-  // Popover 등
   const menuIconRef = useRef(null);
   const [showPopover, setShowPopover] = useState(false);
   const [commentMenuVisible, setCommentMenuVisible] = useState(null);
   const commentIconRefs = useRef({});
 
-  // 데이터 fetch (fetch 사용)
- useEffect(() => {
-  setLoading(true);
-  (async () => {
-    const token = await AsyncStorage.getItem('accessToken');
-    console.log('[PostDetailScreen] accessToken:', token);
-
-    if (!token) {
-      setError('토큰이 없습니다! 로그인 상태를 확인하세요');
-      setLoading(false);
-      return;
-    }
-
+  // 게시글/댓글/대댓글 불러오기
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      // 1. 게시글 데이터 fetch
+      const token = await AsyncStorage.getItem('accessToken');
+      if (!token) throw new Error('토큰이 없습니다! 로그인 상태를 확인하세요');
+
+      // 게시글
       const postRes = await fetch(`http://localhost:8080/api/posts/${postId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
-      if (!postRes.ok) {
-        const errData = await postRes.json().catch(() => ({}));
-        throw new Error(errData.message || '게시글 불러오기 실패');
-      }
+      if (!postRes.ok) throw new Error('게시글 불러오기 실패');
       const postData = await postRes.json();
 
-      // 2. 댓글 데이터 fetch
+      // 댓글
       const commentsRes = await fetch(`http://localhost:8080/api/posts/${postId}/comments`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
-      if (!commentsRes.ok) {
-        const errData = await commentsRes.json().catch(() => ({}));
-        throw new Error(errData.message || '댓글 불러오기 실패');
-      }
+      if (!commentsRes.ok) throw new Error('댓글 불러오기 실패');
       const commentsData = await commentsRes.json();
-
-      // 3. 디버깅용 헤더 확인(필요 시)
-      console.log('게시글 요청 헤더:', postRes.headers); // fetch에선 header 확인은 어렵지만, config와 다름!
-      console.log('댓글 요청 헤더:', commentsRes.headers);
 
       setPost(postData);
       setComments(Array.isArray(commentsData) ? commentsData : []);
-      setPostLikes(postData?.likeCount || 0);
     } catch (e) {
-      console.warn('에러 response:', e.message);
       setError('불러오기 실패: ' + e.message);
     } finally {
       setLoading(false);
     }
-  })();
-}, [postId]);
+  };
 
-
+  useEffect(() => {
+    fetchData();
+  }, [postId]);
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
   if (error) return <Text style={{ color: 'red', padding: 16 }}>{error}</Text>;
   if (!post) return null;
 
-  // ---- 좋아요/댓글(프론트) ----
-  const togglePostLike = () => {
-    setPostLiked((prev) => !prev);
-    setPostLikes((prev) => prev + (postLiked ? -1 : 1));
-  };
-  const toggleCommentLike = (commentId) => {
-    setComments((list) =>
-      list.map((c) =>
-        c.commentId === commentId
-          ? { ...c, liked: !c.liked, likeCount: (c.likeCount || 0) + (c.liked ? -1 : 1) }
-          : c
-      )
-    );
-  };
-  const toggleReplyLike = (commentId, replyId) => {
-    setComments((list) =>
-      list.map((c) => {
-        if (c.commentId !== commentId) return c;
-        return {
-          ...c,
-          replies: c.replies.map((r) =>
-            r.commentId === replyId
-              ? { ...r, liked: !r.liked, likeCount: (r.likeCount || 0) + (r.liked ? -1 : 1) }
-              : r
-          ),
-        };
-      })
-    );
+  // ---- 좋아요 API 연동 ----
+  const togglePostLike = async () => {
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      const res = await fetch(`http://localhost:8080/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || '게시글 좋아요 실패');
+      }
+      await fetchData();
+    } catch (e) {
+      alert(e.message || '게시글 좋아요 오류');
+    }
   };
 
-  // ---- 입력창 열기 ----
+  const toggleCommentLike = async (commentId) => {
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      const res = await fetch(`http://localhost:8080/api/comments/${commentId}/like`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || '댓글 좋아요 실패');
+      }
+      await fetchData();
+    } catch (e) {
+      alert(e.message || '댓글 좋아요 오류');
+    }
+  };
+
+  const toggleReplyLike = async (commentId, replyId) => {
+    await toggleCommentLike(replyId);
+  };
+
+  // ---- 입력창 열기/닫기 ----
   const openInput = (target) => {
     setReplyTarget(target);
     setInputVisible(true);
     Animated.timing(slideAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start();
   };
-  // ---- 입력창 닫기 ----
   const finishInput = () => {
     setInputText('');
     setEditMode(false);
@@ -158,56 +135,109 @@ export default function PostDetailScreen() {
     }).start(() => setInputVisible(false));
   };
 
-  // ---- 댓글/대댓글 작성/수정 (프론트만) ----
-  const sendComment = () => {
+  // ---- 댓글/대댓글 등록 (API 연동) ----
+  const sendComment = async () => {
     const text = inputText.trim();
     if (!text) return;
-    if (editMode && editIds.cId && !editIds.rId) {
-      setComments(list =>
-        list.map(c =>
-          c.commentId === editIds.cId ? { ...c, content: text } : c
-        )
-      );
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      let body = { content: text };
+      if (replyTarget.type === 'comment' && replyTarget.id) {
+        body.parentId = replyTarget.id;
+      }
+      const res = await fetch(`http://localhost:8080/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || '댓글 작성 실패');
+      }
+      await fetchData();
       finishInput();
-      return;
+    } catch (e) {
+      alert(e.message || '댓글 작성 오류');
+    } finally {
+      setLoading(false);
     }
-    // 새 댓글
-    if (replyTarget.type === 'post') {
-      const newComment = {
-        commentId: Date.now(),
-        authorNickname: 'Me',
-        content: text,
-        createdAt: new Date().toISOString(),
-        liked: false,
-        likeCount: 0,
-        replies: [],
-      };
-      setComments((list) => [newComment, ...list]);
+  };
+
+  // ---- 댓글/대댓글 삭제 (API 연동) ----
+ const handleCommentDelete = (commentId) => {
+  console.log('handleCommentDelete 실행!', commentId);
+  setCommentMenuVisible(null);
+
+  setTimeout(() => {
+    if (Platform.OS === 'web') {
+      // 웹은 window.confirm
+      if (window.confirm('삭제하면 되돌릴 수 없습니다.\n정말 삭제하시겠어요?')) {
+        // 삭제 로직 실행!
+        (async () => {
+          try {
+            const token = await AsyncStorage.getItem('accessToken');
+            const url = `http://localhost:8080/api/comments/${commentId}`;
+            console.log('댓글 삭제 fetch 호출:', url);
+            const res = await fetch(url, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${token}` },
+            });
+            const text = await res.text();
+            console.log('댓글 삭제 fetch 응답:', res.status, text);
+            if (!res.ok) {
+              window.alert(text || '댓글 삭제 실패');
+              return;
+            }
+            await fetchData();
+          } catch (e) {
+            window.alert(e.message || '댓글 삭제 오류');
+          }
+        })();
+      }
     } else {
-      // 대댓글
-      setComments((list) =>
-        list.map((c) =>
-          c.commentId === replyTarget.id
-            ? {
-                ...c,
-                replies: [
-                  ...(c.replies || []),
-                  {
-                    commentId: Date.now(),
-                    authorNickname: 'Me',
-                    content: text,
-                    createdAt: new Date().toISOString(),
-                    liked: false,
-                    likeCount: 0,
-                  },
-                ],
-              }
-            : c
-        )
+      // 앱은 Alert.alert
+      Alert.alert(
+        '삭제하시겠어요?',
+        '삭제하면 되돌릴 수 없습니다.',
+        [
+          { text: '취소', style: 'cancel' },
+          {
+            text: '삭제',
+            style: 'destructive',
+            onPress: () => {
+              (async () => {
+                try {
+                  const token = await AsyncStorage.getItem('accessToken');
+                  const url = `http://localhost:8080/api/comments/${commentId}`;
+                  const res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                  });
+                  const text = await res.text();
+                  if (!res.ok) {
+                    alert(text || '댓글 삭제 실패');
+                    return;
+                  }
+                  await fetchData();
+                } catch (e) {
+                  alert(e.message || '댓글 삭제 오류');
+                }
+              })();
+            },
+          },
+        ],
+        { cancelable: true }
       );
     }
-    finishInput();
-  };
+  }, 250);
+};
+
+
+
 
   // ---- 댓글 메뉴 ----
   const handleCommentEdit = (id) => {
@@ -221,80 +251,54 @@ export default function PostDetailScreen() {
     openInput({});
   };
 
-  const handleCommentDelete = (commentId) => {
-    setCommentMenuVisible(null);
+  // ---- 게시글 메뉴 ----
+  const handleEdit = () => {
+    setShowPopover(false);
+    navigation.navigate('PostWrite', {
+      mode: 'edit',
+      postId: post.postId,
+      postData: post,
+      defaultBoardTab: post.communityType,
+      diversity: post.diversity
+    });
+  };
+
+  const deletePost = async () => {
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      const res = await fetch(`http://localhost:8080/api/posts/${postId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        alert('삭제 완료!');
+        navigation.goBack();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert('삭제 실패: ' + (err.message || res.status));
+      }
+    } catch (e) {
+      alert('삭제 실패: ' + (e?.message || '오류'));
+    }
+  };
+
+  const handleDelete = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('삭제하면 되돌릴 수 없습니다.\n정말 삭제하시겠어요?')) {
+        deletePost();
+      }
+      return;
+    }
     Alert.alert(
       '삭제하시겠어요?',
       '삭제하면 되돌릴 수 없습니다.',
       [
         { text: '취소', style: 'cancel' },
-        {
-          text: '삭제',
-          style: 'destructive',
-          onPress: () => {
-            setComments((list) => list.filter((c) => c.commentId !== commentId));
-          },
-        },
+        { text: '삭제', style: 'destructive', onPress: deletePost },
       ],
       { cancelable: true }
     );
   };
-
-  // ---- 게시글 메뉴 ----
-  const handleEdit = () => {
-  setShowPopover(false);
-  navigation.navigate('PostWrite', {
-    mode: 'edit',
-    postId: post.postId,
-    postData: post,
-    defaultBoardTab: post.communityType,
-    diversity: post.diversity
-  });
-};
-
-// ---- 삭제 기능 연동 ----
-  const deletePost = async () => {
-  try {
-    const token = await AsyncStorage.getItem('accessToken');
-    const res = await fetch(`http://localhost:8080/api/posts/${postId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-    if (res.ok) {
-      alert('삭제 완료!');
-      navigation.goBack();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      alert('삭제 실패: ' + (err.message || res.status));
-    }
-  } catch (e) {
-    alert('삭제 실패: ' + (e?.message || '오류'));
-  }
-};
-
-const handleDelete = () => {
-  console.log('[DEBUG] handleDelete 실행!');
-  if (Platform.OS === 'web') {
-    if (window.confirm('삭제하면 되돌릴 수 없습니다.\n정말 삭제하시겠어요?')) {
-      // 실제 삭제 로직 호출!
-      deletePost();
-    }
-    return;
-  }
-
-  Alert.alert(
-    '삭제하시겠어요?',
-    '삭제하면 되돌릴 수 없습니다.',
-    [
-      { text: '취소', style: 'cancel' },
-      { text: '삭제', style: 'destructive', onPress: deletePost },
-    ],
-    { cancelable: true }
-  );
-};
-
-
-
 
   // ---- 헤더 아래 게시글 info 렌더 ----
   const renderHeader = () => (
@@ -332,9 +336,9 @@ const handleDelete = () => {
           <Feather
             name="thumbs-up"
             size={16}
-            color={postLiked ? '#FBA834' : '#666'}
+            color={post.liked ? '#FBA834' : '#666'}
           />
-          <Text style={styles.statsText}> 공감 {postLikes}</Text>
+          <Text style={styles.statsText}> 공감 {post.likeCount}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.statsItem} onPress={() => openInput({ type: 'post' })}>
           <Feather name="message-circle" size={16} color="#666" />
@@ -426,6 +430,22 @@ const handleDelete = () => {
             </View>
             <Text style={styles.commentText}>{reply.content}</Text>
             <Text style={styles.commentDateTime}>{reply.createdAt?.slice(0,10)}</Text>
+            {/* 대댓글 삭제 */}
+            {commentMenuVisible === reply.commentId && (
+              <Popover
+                isVisible
+                from={anchorRef}
+                onRequestClose={() => setCommentMenuVisible(null)}
+                placement="bottom"
+              >
+                <View style={styles.popoverContainer}>
+                  <TouchableOpacity style={styles.menuItem} onPress={() => handleCommentDelete(reply.commentId)}>
+                    <Ionicons name="trash" size={16} color="#333" />
+                    <Text style={styles.menuText}>삭제</Text>
+                  </TouchableOpacity>
+                </View>
+              </Popover>
+            )}
           </View>
         ))}
       </View>
@@ -435,7 +455,6 @@ const handleDelete = () => {
   // ---- 반환 ----
   return (
     <View style={styles.container}>
-      {/* 헤더는 딱 한 번만 */}
       <Header showBackButton leftContent={post?.diversity || '커뮤니티'} />
 
       <FlatList
