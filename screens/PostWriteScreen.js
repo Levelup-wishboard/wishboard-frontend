@@ -261,18 +261,7 @@ const handleSubmit = async () => {
             </View>
           </>
         )}
-        {isRecruit && (
-          <>
-            <Text style={styles.label}>오픈카톡방 링크</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="https://open.kakao.com/..."
-              value={openChat}
-              onChangeText={setOpenChat}
-              autoCapitalize="none"
-            />
-          </>
-        )}
+        
         <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
           <Text style={styles.submitText}>게시하기</Text>
         </TouchableOpacity>
