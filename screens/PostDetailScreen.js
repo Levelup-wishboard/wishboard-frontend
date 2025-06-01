@@ -49,14 +49,14 @@ export default function PostDetailScreen() {
       if (!token) throw new Error('토큰이 없습니다! 로그인 상태를 확인하세요');
 
       // 게시글
-      const postRes = await fetch(`http://localhost:8080/api/posts/${postId}`, {
+      const postRes = await fetch(`http://3.39.187.114:8080/api/posts/${postId}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!postRes.ok) throw new Error('게시글 불러오기 실패');
       const postData = await postRes.json();
 
       // 댓글
-      const commentsRes = await fetch(`http://localhost:8080/api/posts/${postId}/comments`, {
+      const commentsRes = await fetch(`http://3.39.187.114:8080/api/posts/${postId}/comments`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!commentsRes.ok) throw new Error('댓글 불러오기 실패');
@@ -83,7 +83,7 @@ export default function PostDetailScreen() {
   const togglePostLike = async () => {
     try {
       const token = await AsyncStorage.getItem('accessToken');
-      const res = await fetch(`http://localhost:8080/api/posts/${postId}/like`, {
+      const res = await fetch(`http://3.39.187.114:8080/api/posts/${postId}/like`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -100,7 +100,7 @@ export default function PostDetailScreen() {
   const toggleCommentLike = async (commentId) => {
     try {
       const token = await AsyncStorage.getItem('accessToken');
-      const res = await fetch(`http://localhost:8080/api/comments/${commentId}/like`, {
+      const res = await fetch(`http://3.39.187.114:8080/api/comments/${commentId}/like`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -146,7 +146,7 @@ export default function PostDetailScreen() {
       if (replyTarget.type === 'comment' && replyTarget.id) {
         body.parentId = replyTarget.id;
       }
-      const res = await fetch(`http://localhost:8080/api/posts/${postId}/comments`, {
+      const res = await fetch(`http://3.39.187.114:8080/api/posts/${postId}/comments`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -177,7 +177,7 @@ export default function PostDetailScreen() {
           (async () => {
             try {
               const token = await AsyncStorage.getItem('accessToken');
-              const url = `http://localhost:8080/api/comments/${commentId}`;
+              const url = `http://3.39.187.114:8080/api/comments/${commentId}`;
               const res = await fetch(url, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
@@ -206,7 +206,7 @@ export default function PostDetailScreen() {
                 (async () => {
                   try {
                     const token = await AsyncStorage.getItem('accessToken');
-                    const url = `http://localhost:8080/api/comments/${commentId}`;
+                    const url = `http://3.39.187.114:8080/api/comments/${commentId}`;
                     const res = await fetch(url, {
                       method: 'DELETE',
                       headers: { 'Authorization': `Bearer ${token}` },
@@ -257,7 +257,7 @@ export default function PostDetailScreen() {
   const deletePost = async () => {
     try {
       const token = await AsyncStorage.getItem('accessToken');
-      const res = await fetch(`http://localhost:8080/api/posts/${postId}`, {
+      const res = await fetch(`http://3.39.187.114:8080/api/posts/${postId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       });

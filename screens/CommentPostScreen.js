@@ -95,8 +95,18 @@ export default function CommentPostsScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {posts.map((post) => (
-          <View key={post.id} style={styles.card}>
+      {posts.map((post) => (
+        <TouchableOpacity
+          key={post.id}
+          onPress={() =>
+            navigation.navigate('PostDetail', {
+              postId: post.communityId,
+              communityType: post.communityType,
+              communityDiversity: post.communityDiversity,
+            })
+          }
+        >
+          <View style={styles.card}>
             <View style={styles.topRow}>
               <View style={styles.badgeContainer}>
                 <View style={styles.badges}>
@@ -132,7 +142,9 @@ export default function CommentPostsScreen({ navigation }) {
               )}
             </View>
           </View>
-        ))}
+        </TouchableOpacity>
+      ))}
+
       </ScrollView>
     </SafeAreaView>
   );

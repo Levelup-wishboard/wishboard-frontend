@@ -12,6 +12,7 @@ import LikedPostsScreen from '../screens/LikedPostsScreen';
 import AlamScreen from '../screens/AlamScreen';
 import LoginScreen from '../screens/LoginScreen';
 import BucketList from "../screens/BucketListScreen"
+import PostDetailScreen from '../screens/PostDetailScreen';
 
 
 
@@ -29,6 +30,8 @@ export default function MypageStack() {
       <Stack.Screen name="LikedPosts" component={LikedPostsScreen} />
       <Stack.Screen name="Alam" component={AlamScreen} />
       <Stack.Screen name="OngoingBucketList" component={BucketList} />
+      <Stack.Screen name="PostDetail" component={PostDetailScreen} />
+      
     </Stack.Navigator>
   );
 }

@@ -121,7 +121,15 @@ export default function HallOfFameScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'TrophyScreen' }],
+          })
+        }
+        style={styles.backButton}
+      >
         <Image source={require('../assets/images/back.png')} style={styles.backIcon} />
       </TouchableOpacity>
 
