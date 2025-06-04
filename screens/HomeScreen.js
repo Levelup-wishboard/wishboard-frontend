@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,53 +7,18 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { getTagColor } from '../constants/Colors';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { getTagColor, BOARD_COLORS } from '../constants/Colors';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-  const [pinnedList, setPinnedList] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const dummyPopular = [
-    { id: 1, title: '스카이다이빙', category: '해보고싶다' },
-    { id: 2, title: '해외 트레킹', category: '가보고싶다' },
-    { id: 3, title: '봉사활동 100시간', category: '되고싶다' },
-  ];
-
-  const dummyCommunity = [
-    { id: 1, title: '드디어 도전 완료했어요!', author: '은지', tag: '되' },
-    { id: 2, title: '이 코스 강추합니다.', author: '민수', tag: '가' },
-    { id: 3, title: '어제 눈물났어요 ㅠ', author: '하늘', tag: '해' },
-  ];
-
-  const fetchPinned = async () => {
-    try {
-      const token = await AsyncStorage.getItem('accessToken');
-      const response = await axios.get('http://3.39.187.114:8080/api/bucketlist/pinned', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setPinnedList(response.data);
-    } catch (error) {
-      console.error('고정 버킷리스트 불러오기 실패:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPinned();
-  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* 상단 헤더 */}
+        {/* 상단 영역 */}
         <View style={styles.header}>
           <View style={styles.topRow}>
             <Image source={require('../assets/images/logo.png')} style={styles.logo} />
@@ -62,122 +27,191 @@ export default function HomeScreen() {
               <Ionicons name="person-outline" size={24} color="#FBA834" style={styles.icon} />
             </View>
           </View>
-          <Text style={styles.level}>Lv. 3 도전자</Text>
-        </View>
+          <Text style={styles.title}>레벨업 님의 WISHBOARD</Text>
+          <Text style={styles.subtitle}>한 걸음씩 쌓아가는 도전, 함께 이루어가요!</Text>
 
-        {/* 도전 중인 버킷리스트 */}
-        <Text style={styles.sectionTitle}>도전 중인 버킷리스트</Text>
-        {loading ? (
-          <ActivityIndicator size="large" color="#FBA834" />
-        ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
-            {pinnedList.map((item) => (
-              <View key={item.bucketId} style={styles.card}>
-                <Image
-                  source={item.image ? { uri: item.image } : require('../assets/images/default.png')}
-                  style={styles.cardImage}
-                />
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={[styles.cardTag, { backgroundColor: getTagColor(item.category) }]}>
-                  {item.category}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
-        )}
+          <View style={styles.challengeRow}>
+            {/* 도전 리스트 */}
+            <View style={styles.challengeList}>
+              {challengeItems.map((item, index) => (
+                <View key={index} style={styles.challengeItem}>
+                  <View style={styles.ddayRow}>
+                    <Text style={styles.ddayText}>{item.dday}</Text>
+                    <View style={[styles.tag, { backgroundColor: getTagColor(item.tag) }]}>
+                      <Text style={styles.tagText}>{item.tag}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.profileRow}>
+                    <Image source={item.image} style={styles.profileImage} />
+                    <Text style={styles.challengeText}>{item.text}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            {/* 트로피 섹션 */}
+            <View style={styles.trophySection}>
+              <TouchableOpacity onPress={() => navigation.navigate('Trophy')}>
+                <View style={styles.trophyTextWrapper}>
+                  <Text style={styles.trophyScore}>2</Text>
+                  <Text style={styles.trophyTotal}>/10</Text>
+                </View>
+                <Image source={require('../assets/images/trophy.png')} style={styles.trophyImage} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
 
         {/* 인기 버킷리스트 */}
-        <View style={styles.sectionRow}>
-          <Text style={styles.sectionTitle}>인기 버킷리스트</Text>
-          <TouchableOpacity onPress={() => {}}>
-            <Text style={styles.moreText}>더보기</Text>
-          </TouchableOpacity>
-        </View>
-        {dummyPopular.map((item) => (
-          <View key={item.id} style={styles.popularItem}>
-            <Text style={styles.popularTitle}>{item.title}</Text>
-            <Text style={[styles.cardTag, { backgroundColor: getTagColor(item.category) }]}>
-              {item.category}
-            </Text>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>인기 버킷리스트</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Popular')}>
+              <Text style={styles.moreButton}>더보기 &gt;</Text>
+            </TouchableOpacity>
           </View>
-        ))}
+          {popularBuckets.map((item, index) => (
+            <View key={index} style={styles.bucketRow}>
+              <View style={[styles.tag, { backgroundColor: getTagColor(item.tag) }]}>
+                <Text style={styles.tagText}>{item.tag}</Text>
+              </View>
+              <Text style={styles.bucketText}>{item.text}</Text>
+              <TouchableOpacity style={styles.plusButton}
+              onPress={() => navigation.navigate('BucketList', { screen: 'BucketListAdd' })}>
+                <Ionicons name="add" size={16} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
 
         {/* 최근 커뮤니티 글 */}
-        <View style={styles.sectionRow}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>최근 커뮤니티 글</Text>
-          <TouchableOpacity onPress={() => {}}>
-            <Text style={styles.moreText}>더보기</Text>
-          </TouchableOpacity>
+          {recentPosts.map((item, index) => (
+  <TouchableOpacity
+  key={index}
+  style={styles.postCard}
+  onPress={() =>
+    navigation.navigate('Community', {
+      screen: 'PostDetail',
+      params: { post: item }, // post 데이터 전달
+    })
+  }
+>
+    <View style={styles.labelRow}>
+      <View style={styles.labelBox}>
+        <Text style={styles.labelText}>{item.detail}</Text>
+      </View>
+      <View style={[styles.labelBox, { backgroundColor: BOARD_COLORS[item.board] }]}>
+        <Text style={styles.labelText}>{item.board}</Text>
+      </View>
+    </View>
+    <Text style={styles.postTitle}>{item.title}</Text>
+    <Text style={styles.postAuthor}>{item.author}</Text>
+  </TouchableOpacity>
+))}
         </View>
-        {dummyCommunity.map((post) => (
-          <View key={post.id} style={styles.communityItem}>
-            <Text style={styles.communityTitle}>{post.title}</Text>
-            <Text style={styles.communityMeta}>
-              {post.author} · {post.tag}
-            </Text>
-          </View>
-        ))}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+const challengeItems = [
+  { dday: 'D-30', tag: '배우고싶다', image: require('../assets/images/profile1.png'), text: '드럼 배우기' },
+  { dday: 'D-176', tag: '해보고싶다', image: require('../assets/images/profile2.png'), text: '스카이다이빙' },
+  { dday: '언젠가', tag: '되고싶다', image: require('../assets/images/profile3.png'), text: '베스트셀러작가 되기' },
+];
+
+const popularBuckets = [
+  { tag: '갖고싶다', text: '포르쉐 911 사기' },
+  { tag: '가보고싶다', text: '북극으로의 크루즈 여행가기' },
+];
+
+const recentPosts = [
+  { board: 'Q&A', detail: '번지점프', title: '우리나라에서 가장 높은 번지점프 어디인가요??', author: '안녕' },
+  { board: 'Q&A', detail: '번지점프', title: '우리나라에서 가장 높은 번지점프 어디인가요??', author: '안녕' },
+  { board: 'Q&A', detail: '번지점프', title: '우리나라에서 가장 높은 번지점프 어디인가요??', author: '안녕' },
+];
+
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
-  container: { paddingBottom: 40 },
-  header: { paddingHorizontal: 20, paddingVertical: 16 },
+  container: { paddingBottom: 20 },
+  header: {
+    backgroundColor: '#2F327D',
+    paddingTop: 30,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  logo: { width: 100, height: 30, resizeMode: 'contain' },
-  iconRow: { flexDirection: 'row' },
+  logo: { width: 40, height: 40, resizeMode: 'contain' },
+  iconRow: { flexDirection: 'row', gap: 16 },
   icon: { marginLeft: 12 },
-  level: { fontSize: 14, marginTop: 10, color: '#555' },
-
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginHorizontal: 20, marginTop: 30 },
-  sectionRow: {
+  title: { color: '#FBA834', fontSize: 16, fontWeight: 'bold', marginTop: 12 },
+  subtitle: { color: '#ffffff', fontSize: 12, marginTop: 4 },
+  challengeRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  challengeList: { flex: 1 },
+  challengeItem: { marginBottom: 8 },
+  ddayRow: { flexDirection: 'row', alignItems: 'center' },
+  ddayText: {
+    color: '#000',
+    backgroundColor: '#fff',
+    fontSize: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginRight: 6,
+  },
+  tag: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
+  tagText: { color: '#000', fontSize: 10 },
+  profileRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  profileImage: { width: 24, height: 24, borderRadius: 12, marginRight: 6 },
+  challengeText: { color: '#fff', fontSize: 13 },
+  trophySection: { alignItems: 'center', justifyContent: 'center', marginLeft: 12 },
+  trophyTextWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  trophyScore: { fontSize: 28, fontWeight: 'bold', color: '#FBA834' },
+  trophyTotal: { fontSize: 14, marginLeft: 4, color: '#ffffff' },
+  trophyImage: { width: 90, height: 90, resizeMode: 'contain' },
+  section: { marginTop: 24, paddingHorizontal: 20 },
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginTop: 30,
     alignItems: 'center',
+    marginBottom: 12,
   },
-  moreText: { color: '#FBA834' },
-
-  horizontalList: { paddingLeft: 20, marginTop: 10 },
-  card: {
-    width: 140,
-    backgroundColor: '#f5f5f5',
+  sectionTitle: { fontSize: 16, fontWeight: 'bold' },
+  moreButton: { color: '#333', fontSize: 12 },
+  bucketRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  bucketText: { flex: 1, marginLeft: 10, fontSize: 14, color: '#000' },
+  plusButton: {
+    backgroundColor: '#FBA834',
+    width: 20,
+    height: 20,
     borderRadius: 10,
-    padding: 10,
-    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  cardImage: { width: '100%', height: 80, borderRadius: 8 },
-  cardTitle: { marginTop: 8, fontWeight: 'bold' },
-  cardTag: {
-    marginTop: 4,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    color: '#fff',
-    fontSize: 12,
-  },
-
-  popularItem: {
-    backgroundColor: '#f9f9f9',
-    marginHorizontal: 20,
-    marginTop: 10,
-    padding: 12,
-    borderRadius: 8,
-  },
-  popularTitle: { fontSize: 16, fontWeight: 'bold' },
-
-  communityItem: {
-    marginHorizontal: 20,
-    marginTop: 12,
-    paddingBottom: 12,
+  postCard: {
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderColor: '#eee',
+    borderBottomColor: '#ddd',
+    paddingVertical: 12,
   },
-  communityTitle: { fontSize: 15, fontWeight: '600' },
-  communityMeta: { fontSize: 12, color: '#999', marginTop: 4 },
+  labelRow: { flexDirection: 'row', marginBottom: 6 },
+  labelBox: {
+    backgroundColor: '#ddd',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginRight: 6,
+  },
+  labelText: { fontSize: 10, color: '#000' },
+  postTitle: { fontSize: 14, color: '#000', marginBottom: 4 },
+  postAuthor: { fontSize: 12, color: '#666' },
 });

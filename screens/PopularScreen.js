@@ -13,7 +13,7 @@ import { getTagColor } from '../constants/Colors';
 const TAG_FILTERS = ['All', '해보고싶다', '되고싶다', '갖고싶다', '가보고싶다', '배우고싶다'];
 
 const BUCKET_LIST = [
-  { id: '1', tag: '갖고싶다', text: '포르쉐 911 사기' },
+  { id: '1', tag: '배우고싶다', text: '드럼 배우기' },
   { id: '2', tag: '가보고싶다', text: '북극으로의 크루즈여행가기' },
   { id: '3', tag: '배우고싶다', text: '서핑 배우기' },
   { id: '4', tag: '해보고싶다', text: '열기구 타기' },
@@ -24,7 +24,8 @@ const BUCKET_LIST = [
   { id: '9', tag: '가보고싶다', text: '사하라 사막 여행' },
   { id: '10', tag: '되고싶다', text: '유엔 평화대사 되기' },
   { id: '11', tag: '해보고싶다', text: '스카이다이빙' },
-  { id: '12', tag: '갖고싶다', text: '최신 아이패드 프로' },
+  { id: '12', tag: '갖고싶다', text: '최신 아이패드 프로' }
+   
 ];
 
 export default function PopularBucketListScreen({ navigation }) {

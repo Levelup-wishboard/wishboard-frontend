@@ -180,24 +180,24 @@ export const mockPosts = {
   export const sampleTrophies = [
     {
       id: 't1',
-      category: '챌보교섭단',
-      title: '스카이다이빙 하기',
-      createdAt: '2024.04.21',
-      achievedAt: '2025.02.14',
+      category: '해보고싶다',
+      title: '제주도 여행',
+      createdAt: '2024.06.02',
+      achievedAt: '언젠가',
     },
     {
       id: 't2',
-      category: '챌보교섭단',
-      title: '열기구 타기',
-      createdAt: '2024.04.21',
-      achievedAt: '2025.02.14',
+      category: '배우고싶다',
+      title: '기타배우기',
+      createdAt: '2024.06.02',
+      achievedAt: '언젠가',
     },
     {
       id: 't3',
-      category: '배우구단',
+      category: '마라톤 완주하기',
       title: '일본어 배우기',
-      createdAt: '2024.04.21',
-      achievedAt: '2025.02.14',
+      createdAt: '2024.06.02',
+      achievedAt: '언젠가',
     },
   ];
   
