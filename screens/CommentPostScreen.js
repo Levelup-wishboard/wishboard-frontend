@@ -14,33 +14,6 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CommentPostsScreen({ navigation }) {
-  // const posts = [
-  //   {
-  //     id: 1,
-  //     category: '스카이다이빙',
-  //     label: '인원모집',
-  //     title: '스카이다이빙 함께할 멤버 모집합니다! (초보자도 환영)',
-  //     author: '나나',
-  //     likes: 10,
-  //     comments: 10,
-  //     time: '18:30',
-  //     thumbnail: require('../assets/images/sky.png'),
-  //   },
-  //   {
-  //     id: 2,
-  //     category: '수상스키',
-  //     label: '정보',
-  //     title: '수상스키 시작을 위한 필수 준비물',
-  //     author: '키키',
-  //   },
-  //   {
-  //     id: 3,
-  //     category: '번지점프',
-  //     label: 'Q&A',
-  //     title: '우리나라에서 가장 높은 번지점프 어디인가요??',
-  //     author: '안농',
-  //   },
-  // ];
 
   const [posts, setPosts] = useState([]);
 
