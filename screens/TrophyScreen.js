@@ -1,9 +1,17 @@
-// screens/TrophyScreen.js
-
 import axios from "axios";
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Alert
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
+import { TrophyContext } from '../context/TrophyContext';
 
 const CATEGORY_COLORS = {
   '해보고싶다': '#93DEFF',
@@ -21,7 +29,12 @@ const TROPHY_IMAGES = {
 };
 
 export default function TrophyScreen({ navigation }) {
+  const isFocused = useIsFocused();
+  const { customTrophies } = useContext(TrophyContext);
+  const [serverTrophies, setServerTrophies] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // 날짜 포맷
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     return new Date(dateStr).toLocaleDateString('ko-KR', {
@@ -31,25 +44,20 @@ export default function TrophyScreen({ navigation }) {
     });
   };
 
-  const [trophies, setTrophies] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  // API에서 서버 트로피만 가져오기
   useEffect(() => {
-    const fetchTrophies = async () => {
+    const fetchServerTrophies = async () => {
       try {
         const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
           Alert.alert("로그인 필요", "다시 로그인 해주세요.");
           return;
         }
-
-        const response = await axios.get('http://3.39.187.114:8080/trophy/trophies', {  //본인 pc ip주소로 바꿔줘야함.
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setTrophies(response.data);
+        const response = await axios.get(
+          'http://3.39.187.114:8080/trophy/trophies',
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setServerTrophies(response.data || []);
       } catch (error) {
         console.error("트로피 데이터를 불러오지 못했습니다.", error);
         Alert.alert("오류", "트로피 데이터를 불러오는 데 실패했습니다.");
@@ -58,41 +66,58 @@ export default function TrophyScreen({ navigation }) {
       }
     };
 
-    fetchTrophies();
-  }, []);
+    if (isFocused) {
+      fetchServerTrophies();
+    }
+  }, [isFocused]);
+
+  // 서버 트로피 + 커스텀 트로피 합치기
+  const displayTrophies = React.useMemo(() => {
+    const existingIds = new Set(serverTrophies.map(t => String(t.bucketId)));
+    const filteredCustom = customTrophies.filter(
+      ct => !existingIds.has(String(ct.bucketId))
+    );
+    const merged = [...serverTrophies, ...filteredCustom];
+    // 달성일 내림차순 정렬
+    return merged.sort((a, b) => new Date(b.achievedAt) - new Date(a.achievedAt));
+  }, [serverTrophies, customTrophies]);
 
   return (
     <View style={styles.container1}>
-      {/* 상단 진행도 */}
       <View style={styles.topSection}>
         <View style={styles.box}>
-            {/* DB에서 가져오기 */}
-            <View style={styles.row}>
-              <Text style={styles.trophyText}>{trophies.length}</Text>
-              <Text style={styles.progressText}>/10</Text>
-            </View>
-          {trophies.length >= 0 && (
-            <Image
-              source={require('../assets/images/trophy.png')}
-              style={styles.cardTrophy}
-            />
-          )}
+          <View style={styles.row}>
+            <Text style={styles.trophyText}>{displayTrophies.length}</Text>
+            
+          </View>
+          <Image
+            source={require('../assets/images/trophy.png')}
+            style={styles.cardTrophy}
+          />
         </View>
         <View style={styles.box}>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HallOfFameScreen')}>
-            <Image source={require('../assets/images/trophys.png')} style={styles.trophys} />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('HallOfFameScreen')}
+          >
+            <Image
+              source={require('../assets/images/trophys.png')}
+              style={styles.trophys}
+            />
             <Text style={styles.buttonText}>명예의 전당 보러가기</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AIRecommend')}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('AIRecommend')}
+          >
             <Image source={require('../assets/images/good.png')} style={styles.good} />
             <Text style={styles.buttonText}>버킷리스트 추천받기</Text>
           </TouchableOpacity>
         </View>
       </View>
-      
+
       <ScrollView style={styles.container2}>
-      {/* 트로피 리스트 Db에서 가져오기*/}
-      {trophies.map((trophy) => (
+        {displayTrophies.map((trophy) => (
           <TouchableOpacity
             key={trophy.bucketId}
             style={styles.card}
@@ -103,8 +128,10 @@ export default function TrophyScreen({ navigation }) {
               style={styles.cardTrophy}
             />
             <View style={styles.cardContent}>
-                <View style={styles.row}>
-                <Text style={[styles.badge, { backgroundColor: CATEGORY_COLORS[trophy.category] || '#ccc' }]}>
+              <View style={styles.row}>
+                <Text
+                  style={[ styles.badge, { backgroundColor: CATEGORY_COLORS[trophy.category] || '#ccc' } ]}
+                >
                   {trophy.category}
                 </Text>
                 <Text style={styles.title}>{trophy.title}</Text>
@@ -118,6 +145,7 @@ export default function TrophyScreen({ navigation }) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container1: 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,21 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { getTagColor, BOARD_COLORS } from '../constants/Colors';
+import { BucketListContext } from '../context/BucketListContext';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const { bucketList } = useContext(BucketListContext);
+
+  // 상단에 고정된 도전 리스트 3개 가져오기
+  const pinnedBuckets = bucketList
+    .filter((item) => item.pinned)
+    .sort((a, b) => {
+      const parseDday = (dday) =>
+        dday === '언젠가' ? Infinity : parseInt(dday.replace('D-', ''), 10);
+      return parseDday(a.dday) - parseDday(b.dday);
+    })
+    .slice(0, 3);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -27,14 +39,18 @@ export default function HomeScreen() {
               <Ionicons name="person-outline" size={24} color="#FBA834" style={styles.icon} />
             </View>
           </View>
-          <Text style={styles.title}>레벨업 님의 WISHBOARD</Text>
+          <Text style={styles.title}>김수정 님의 WISHBOARD</Text>
           <Text style={styles.subtitle}>한 걸음씩 쌓아가는 도전, 함께 이루어가요!</Text>
 
           <View style={styles.challengeRow}>
             {/* 도전 리스트 */}
             <View style={styles.challengeList}>
-              {challengeItems.map((item, index) => (
-                <View key={index} style={styles.challengeItem}>
+              {pinnedBuckets.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.challengeItem}
+                  onPress={() => navigation.navigate('BucketListDetail', { bucket: item })}
+                >
                   <View style={styles.ddayRow}>
                     <Text style={styles.ddayText}>{item.dday}</Text>
                     <View style={[styles.tag, { backgroundColor: getTagColor(item.tag) }]}>
@@ -45,17 +61,13 @@ export default function HomeScreen() {
                     <Image source={item.image} style={styles.profileImage} />
                     <Text style={styles.challengeText}>{item.text}</Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
 
             {/* 트로피 섹션 */}
             <View style={styles.trophySection}>
               <TouchableOpacity onPress={() => navigation.navigate('Trophy')}>
-                <View style={styles.trophyTextWrapper}>
-                  <Text style={styles.trophyScore}>2</Text>
-                  <Text style={styles.trophyTotal}>/10</Text>
-                </View>
                 <Image source={require('../assets/images/trophy.png')} style={styles.trophyImage} />
               </TouchableOpacity>
             </View>
@@ -76,62 +88,22 @@ export default function HomeScreen() {
                 <Text style={styles.tagText}>{item.tag}</Text>
               </View>
               <Text style={styles.bucketText}>{item.text}</Text>
-              <TouchableOpacity style={styles.plusButton}
-              onPress={() => navigation.navigate('BucketList', { screen: 'BucketListAdd' })}>
-                <Ionicons name="add" size={16} color="#fff" />
-              </TouchableOpacity>
+              
             </View>
           ))}
         </View>
 
-        {/* 최근 커뮤니티 글 */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>최근 커뮤니티 글</Text>
-          {recentPosts.map((item, index) => (
-  <TouchableOpacity
-  key={index}
-  style={styles.postCard}
-  onPress={() =>
-    navigation.navigate('Community', {
-      screen: 'PostDetail',
-      params: { post: item }, // post 데이터 전달
-    })
-  }
->
-    <View style={styles.labelRow}>
-      <View style={styles.labelBox}>
-        <Text style={styles.labelText}>{item.detail}</Text>
-      </View>
-      <View style={[styles.labelBox, { backgroundColor: BOARD_COLORS[item.board] }]}>
-        <Text style={styles.labelText}>{item.board}</Text>
-      </View>
-    </View>
-    <Text style={styles.postTitle}>{item.title}</Text>
-    <Text style={styles.postAuthor}>{item.author}</Text>
-  </TouchableOpacity>
-))}
-        </View>
+       
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const challengeItems = [
-  { dday: 'D-30', tag: '배우고싶다', image: require('../assets/images/profile1.png'), text: '드럼 배우기' },
-  { dday: 'D-176', tag: '해보고싶다', image: require('../assets/images/profile2.png'), text: '스카이다이빙' },
-  { dday: '언젠가', tag: '되고싶다', image: require('../assets/images/profile3.png'), text: '베스트셀러작가 되기' },
-];
 
 const popularBuckets = [
   { tag: '갖고싶다', text: '포르쉐 911 사기' },
   { tag: '가보고싶다', text: '북극으로의 크루즈 여행가기' },
 ];
 
-const recentPosts = [
-  { board: 'Q&A', detail: '번지점프', title: '우리나라에서 가장 높은 번지점프 어디인가요??', author: '안녕' },
-  { board: 'Q&A', detail: '번지점프', title: '우리나라에서 가장 높은 번지점프 어디인가요??', author: '안녕' },
-  { board: 'Q&A', detail: '번지점프', title: '우리나라에서 가장 높은 번지점프 어디인가요??', author: '안녕' },
-];
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
