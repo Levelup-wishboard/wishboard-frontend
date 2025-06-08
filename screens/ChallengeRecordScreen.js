@@ -1,31 +1,67 @@
-import React, { useState } from 'react';
+// ChallengeRecordScreen.js (전체 수정 버전)
+
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView,
   TouchableOpacity, Image, TextInput,
   ScrollView
 } from 'react-native';
-import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getTagColor } from '../constants/Colors';
+import { ChallengeRecordContext } from '../context/ChallengeRecordContext';
 
 export default function ChallengeRecordScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const bucket = route.params?.bucket;
 
+  const {
+    getRecords,
+    addRecord,
+    updateRecord,
+    getTodayDate,
+  } = useContext(ChallengeRecordContext);
+
+  const [records, setRecords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [image, setImage] = useState(null);
-  const [recordText, setRecordText] = useState('1일차 기록입니다.');
+  const [recordText, setRecordText] = useState('');
 
-  // 샘플 기록
-  const records = [
-    { date: '2025.05.01', image: null, text: '1일차 기록입니다.' },
-    { date: '2025.04.30', image: null, text: '2일차 기록입니다.' },
-    { date: '2025.04.29', image: null, text: '3일차 기록입니다.' },
-  ];
+  useEffect(() => {
+    if (!bucket) return;
+    const today = getTodayDate();
+    const existingRecords = getRecords(bucket.id);
+    const hasToday = existingRecords.some(r => r.date === today);
 
-  const record = records[currentIndex];
+    if (!hasToday) {
+      const newRecords = [...existingRecords, { date: today, image: null, text: '' }];
+      setRecords(newRecords);
+      setCurrentIndex(newRecords.length - 1);
+      setImage(null);
+      setRecordText('');
+    } else {
+      const sortedRecords = [...existingRecords].sort((a, b) => a.date.localeCompare(b.date));
+      setRecords(sortedRecords);
+      const index = sortedRecords.findIndex(r => r.date === today);
+      const record = sortedRecords[index];
+      setCurrentIndex(index);
+      setImage(record.image);
+      setRecordText(record.text);
+    }
+  }, [bucket]);
+
+  if (!bucket) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text style={styles.errorText}>버킷리스트 정보를 불러올 수 없습니다.</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.navText}>{'돌아가기'}</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   const handleSelectImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -39,7 +75,6 @@ export default function ChallengeRecordScreen() {
       allowsEditing: true,
     });
     if (!result.canceled) {
-      records[currentIndex].image = result.assets[0].uri;
       setImage(result.assets[0].uri);
     }
   };
@@ -47,31 +82,27 @@ export default function ChallengeRecordScreen() {
   const handleNavigateRecord = (direction) => {
     const newIndex = currentIndex + direction;
     if (newIndex >= 0 && newIndex < records.length) {
+      const record = records[newIndex];
       setCurrentIndex(newIndex);
-      setRecordText(records[newIndex].text);
-      setImage(records[newIndex].image);
+      setImage(record.image);
+      setRecordText(record.text);
     }
   };
 
   const handleSave = () => {
-    records[currentIndex].text = recordText;
-    navigation.navigate('BucketListDetail', { bucket });
-  };
-
-  const handleGoBackToList = () => {
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'BucketListHome' }],
-      })
-    );
+    const updated = {
+      ...records[currentIndex],
+      image,
+      text: recordText,
+    };
+    updateRecord(bucket.id, updated);
+    navigation.goBack();
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleGoBackToList}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>오늘의 도전 기록</Text>
@@ -79,26 +110,23 @@ export default function ChallengeRecordScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
-        {/* 버킷리스트 정보 */}
         <View style={styles.bucketInfo}>
           <Image
-            source={typeof bucket.image === 'string' ? { uri: bucket.image } : bucket.image}
+            source={typeof bucket.image === 'string' ? { uri: bucket.image } : bucket.image || require('../assets/images/profile1.png')}
             style={styles.image}
           />
           <View>
-            <Text style={styles.title}>{bucket.title}</Text>
+            <Text style={styles.title}>{bucket.text || bucket.title}</Text>
             <View style={[styles.tagBox, { backgroundColor: getTagColor(bucket.tag) }]}>
               <Text style={styles.tagText}>{bucket.tag}</Text>
             </View>
           </View>
         </View>
 
-        {/* 날짜 */}
         <View style={styles.dateBox}>
-          <Text style={styles.dateText}>{record.date}</Text>
+          <Text style={styles.dateText}>{records[currentIndex]?.date}</Text>
         </View>
 
-        {/* 사진 */}
         <TouchableOpacity style={styles.imageUploadBox} onPress={handleSelectImage}>
           {image ? (
             <Image source={{ uri: image }} style={styles.imagePreview} />
@@ -107,35 +135,32 @@ export default function ChallengeRecordScreen() {
           )}
         </TouchableOpacity>
 
-        {/* 텍스트 입력 */}
-        <Text style={styles.label}>어떤 걸 했는지, 어떤 생각이 들었는지 기록해보세요</Text>
+        <Text style={styles.label}>무엇을 했고 어떤 생각이 들었나요?</Text>
         <TextInput
           style={styles.textArea}
           multiline
-          placeholder="여기에 작성하세요..."
           value={recordText}
           onChangeText={setRecordText}
+          placeholder="오늘의 도전 내용을 기록해보세요."
         />
 
-        {/* 이전/다음 */}
         <View style={styles.navigationRow}>
           <TouchableOpacity
             style={styles.navButton}
             disabled={currentIndex === 0}
             onPress={() => handleNavigateRecord(-1)}
           >
-            <Text style={styles.navText}>{'< 이전 기록'}</Text>
+            <Text style={styles.navText}>{'< 이전'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.navButton}
             disabled={currentIndex === records.length - 1}
             onPress={() => handleNavigateRecord(1)}
           >
-            <Text style={styles.navText}>{'다음 기록 >'}</Text>
+            <Text style={styles.navText}>{'다음 >'}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* 저장 */}
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>저장하기</Text>
         </TouchableOpacity>

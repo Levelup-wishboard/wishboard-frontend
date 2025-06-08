@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -13,26 +13,30 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getTagColor } from '../constants/Colors';
+import { TrophyContext } from '../context/TrophyContext';
+import { BucketListContext } from '../context/BucketListContext';
 
 export default function BucketListDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { addTrophy } = useContext(TrophyContext);
+  const { markBucketAsCompleted } = useContext(BucketListContext);
 
-  const bucket = route.params?.bucket || {
-    id: 1,
-    dday: '언젠가',
-    tag: '해보고싶다',
-    title: '제주도 여행',
-    reason: '얼마 남지 않은 시간 안에 꼭 가보고 싶어서',
-    vow: '2025년 12월 안에 제주도 3박 4일 여행 계획 세우기',
-    image: require('../assets/images/profile1.png'),
-  };
+  const bucket = route.params?.bucket;
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCongratsModal, setShowCongratsModal] = useState(false);
 
+  if (!bucket) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text style={{ padding: 16 }}>버킷리스트 정보를 불러올 수 없습니다.</Text>
+      </SafeAreaView>
+    );
+  }
+
   const handleEdit = () => {
-    navigation.navigate('BucketListAdd');
+    navigation.navigate('BucketListAdd', { bucket });
   };
 
   const handleDelete = () => {
@@ -47,6 +51,16 @@ export default function BucketListDetailScreen() {
   };
 
   const handleConfirmComplete = () => {
+    const newTrophy = {
+      bucketId: String(bucket.id),
+      title: bucket.text || '제목 없음',
+      category: bucket.tag,
+      createdAt: new Date().toISOString(),
+      achievedAt: new Date().toISOString(),
+      trophy: 'normal',
+    };
+    addTrophy(newTrophy);
+    markBucketAsCompleted(bucket.id);
     setShowConfirmModal(false);
     setShowCongratsModal(true);
   };
@@ -71,15 +85,17 @@ export default function BucketListDetailScreen() {
             </View>
           </View>
           <View style={styles.rowMid}>
-            <Image
-              source={
-                typeof bucket.image === 'string'
-                  ? { uri: bucket.image }
-                  : bucket.image
-              }
-              style={styles.image}
-            />
-            <Text style={styles.title}>{bucket.title}</Text>
+            {bucket.image && (
+              <Image
+                source={
+                  typeof bucket.image === 'string'
+                    ? { uri: bucket.image }
+                    : bucket.image
+                }
+                style={styles.image}
+              />
+            )}
+            <Text style={styles.title}>{bucket.text}</Text>
           </View>
         </View>
 
@@ -105,16 +121,18 @@ export default function BucketListDetailScreen() {
         </View>
 
         <TouchableOpacity
-  style={styles.recordButton}
-  onPress={() => navigation.navigate('ChallengeRecord', { bucket })}
->
-  <Text style={styles.buttonText}>오늘의 도전 기록하기</Text>
-</TouchableOpacity>
+          style={styles.recordButton}
+          onPress={() => navigation.navigate('ChallengeRecord', { bucket })}
+        >
+          <Text style={styles.buttonText}>오늘의 도전 기록하기</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.completeButton} onPress={handleCompletePress}>
           <Text style={styles.buttonText}>달성 완료</Text>
         </TouchableOpacity>
       </ScrollView>
 
+      {/* 달성 확인 모달 */}
       <Modal visible={showConfirmModal} transparent animationType="fade">
         <View style={styles.modalWrapper}>
           <View style={styles.modalBox}>
@@ -138,6 +156,7 @@ export default function BucketListDetailScreen() {
         </View>
       </Modal>
 
+      {/* 축하 모달 */}
       <Modal visible={showCongratsModal} transparent animationType="fade">
         <View style={styles.modalWrapper}>
           <View style={styles.modalBox}>

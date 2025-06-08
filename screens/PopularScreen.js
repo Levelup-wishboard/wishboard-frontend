@@ -74,10 +74,18 @@ export default function PopularBucketListScreen({ navigation }) {
         <View style={{ paddingHorizontal: 16, marginTop: 8 }}>
         {filteredList.map(item => (
   <TouchableOpacity
-    key={item.id}
-    style={styles.bucketItem}
-    onPress={() => navigation.navigate('BucketList', { screen: 'BucketListAdd' })}
-  >
+  key={item.id}
+  style={styles.bucketItem}
+ onPress={() =>
+  navigation.navigate('BucketList', {
+    screen: 'BucketListAdd',
+    params: {
+      bucket: { tag: item.tag, text: item.text },
+      isEditMode: false,
+    },
+  })
+}
+>
     <View style={[styles.tagBox, { backgroundColor: getTagColor(item.tag) }]}>
       <Text style={styles.tagText}>{item.tag}</Text>
     </View>

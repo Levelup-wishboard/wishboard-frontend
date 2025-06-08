@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,24 +9,51 @@ import {
   ScrollView,
   Image,
   Platform,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { BucketListContext } from '../context/BucketListContext';
 
 const TAGS = ['해보고싶다', '되고싶다', '갖고싶다', '가보고싶다', '배우고싶다'];
 
 export default function BucketListAddScreen() {
   const navigation = useNavigation();
-  const [selectedTag, setSelectedTag] = useState('해보고싶다');
+  const route = useRoute();
+
+  const editingBucket = route.params?.bucket;
+  const isEditing = route.params?.isEditMode ?? !!editingBucket;
+
+  const { addBucketItem, updateBucketItem, deleteBucketItem } = useContext(BucketListContext);
+
+  const [selectedTag, setSelectedTag] = useState(editingBucket?.tag || '해보고싶다');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [someday, setSomeday] = useState(false);
-  const [reason, setReason] = useState('');
-  const [vow, setVow] = useState('');
-  const [content, setContent] = useState('');
-  const [image, setImage] = useState(null);
+  const [someday, setSomeday] = useState(editingBucket?.dday === '언젠가');
+  const [reason, setReason] = useState(editingBucket?.reason || '');
+  const [vow, setVow] = useState(editingBucket?.vow || '');
+  const [content, setContent] = useState(editingBucket?.title || editingBucket?.text || '');
+  const [image, setImage] = useState(
+    editingBucket?.image
+      ? typeof editingBucket.image === 'string'
+        ? editingBucket.image
+        : editingBucket.image.uri
+      : null
+  );
+
+  useEffect(() => {
+    if (editingBucket && editingBucket.dday && editingBucket.dday !== '언젠가') {
+      const ddayMatch = editingBucket.dday.match(/D-(\d+)/);
+      if (ddayMatch) {
+        const days = parseInt(ddayMatch[1], 10);
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + days);
+        setDate(targetDate);
+      }
+    }
+  }, [editingBucket]);
 
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
@@ -54,6 +81,42 @@ export default function BucketListAddScreen() {
     const month = ('0' + (dateObj.getMonth() + 1)).slice(-2);
     const day = ('0' + dateObj.getDate()).slice(-2);
     return `${year}.${month}.${day}`;
+  };
+
+  const handleSubmit = () => {
+    const dday = someday
+      ? '언젠가'
+      : `D-${Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24))}`;
+
+    const bucketData = {
+      id: editingBucket?.id ?? Date.now().toString(),
+      dday,
+      tag: selectedTag,
+      image: image ? { uri: image } : require('../assets/images/profile1.png'),
+      text: content,
+      reason,
+      vow,
+    };
+
+    if (isEditing) {
+      updateBucketItem(bucketData.id, bucketData);
+    } else {
+      addBucketItem(bucketData);
+    }
+
+    navigation.navigate('BucketListHome');
+  };
+
+  const handleDelete = () => {
+    Alert.alert('삭제 확인', '정말 삭제하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제', style: 'destructive', onPress: () => {
+          deleteBucketItem(editingBucket.id);
+          navigation.goBack();
+        },
+      },
+    ]);
   };
 
   return (
@@ -135,16 +198,14 @@ export default function BucketListAddScreen() {
           onChangeText={setVow}
         />
 
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={() => navigation.navigate('BucketListHome')}
-        >
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>저장하기</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },

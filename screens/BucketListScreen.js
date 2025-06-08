@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// screens/BucketListScreen.js
+import React, { useContext } from 'react';
 import {
   View,
   Text,
@@ -11,53 +12,30 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { getTagColor } from '../constants/Colors';
-
-const initialData = [
-  { id: 1, dday: '언젠가', tag: '배우고싶다', image: require('../assets/images/profile1.png'), text: '드럼 배우기', reason: '음악을 좋아해서', vow: '매주 연습하기' },
-  { id: 2, dday: 'D-176', tag: '해보고싶다', image: require('../assets/images/profile2.png'), text: '스카이다이빙', reason: '극복해보고 싶어서', vow: '포기하지 않기' },
-  { id: 3, dday: '언젠가', tag: '되고싶다', image: require('../assets/images/profile3.png'), text: '베스트셀러작가 되기', reason: '책을 많이 읽어서', vow: '매일 글쓰기' },
-  { id: 4, dday: 'D-46', tag: '갖고싶다', image: require('../assets/images/profile1.png'), text: '캠핑용 루프탑 텐트', reason: '자연을 좋아해서', vow: '돈 아껴쓰기' },
-  { id: 5, dday: 'D-132', tag: '가보고싶다', image: require('../assets/images/profile1.png'), text: '이탈리아 베네치아', reason: '사진에서 보고 반함', vow: '여행 계획 세우기' },
-  { id: 6, dday: '언젠가', tag: '해보고싶다', image: require('../assets/images/profile1.png'), text: '제주도 여행', reason: '얼마 남지 않은 시간 안에 꼭 가보고 싶어서', vow: '2025년 12월 안에 제주도 3박 4일 여행 계획 세우기' },
-  { id: 7, dday: '언젠가', tag: '배우고싶다', image: require('../assets/images/profile1.png'), text: '드럼 배우기', reason: '리듬감 키우고 싶어서', vow: '매일 연습하기' },
-];
+import { BucketListContext } from '../context/BucketListContext';
 
 export default function BucketListScreen() {
-  const [pinnedIds, setPinnedIds] = useState([]);
+  const { bucketList, togglePin } = useContext(BucketListContext);
   const navigation = useNavigation();
-
-  const togglePin = (id) => {
-    setPinnedIds((prev) => {
-      if (prev.includes(id)) return prev.filter((pid) => pid !== id);
-      if (prev.length >= 3) return prev;
-      return [...prev, id];
-    });
-  };
 
   const parseDday = (dday) => {
     if (dday === '언젠가') return Infinity;
     return parseInt(dday.replace('D-', ''), 10);
   };
 
-  const sortedList = [...initialData].sort((a, b) => {
-    const aPinned = pinnedIds.includes(a.id);
-    const bPinned = pinnedIds.includes(b.id);
-    if (aPinned !== bPinned) return bPinned - aPinned;
-    return parseDday(a.dday) - parseDday(b.dday);
+  const sortedList = [...bucketList].sort((a, b) => {
+    if (a.pinned !== b.pinned) return b.pinned - a.pinned; // pinned true 우선
+    return parseDday(a.dday) - parseDday(b.dday); // dday 오름차순
   });
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>레벨업 님의 WISHBOARD</Text>
+          <Text style={styles.headerTitle}>김수정 님의 WISHBOARD</Text>
           <Text style={styles.headerSubtitle}>꿈을 기록하고, 함께 실현해가는 버킷리스트</Text>
         </View>
         <View style={styles.trophyWrapper}>
-          <View style={styles.trophyTextWrapper}>
-            <Text style={styles.trophyScore}>2</Text>
-            <Text style={styles.trophyTotal}>/10</Text>
-          </View>
           <Image source={require('../assets/images/trophy.png')} style={styles.trophyImage} />
         </View>
       </View>
@@ -67,7 +45,7 @@ export default function BucketListScreen() {
           <TouchableOpacity
             key={item.id}
             style={styles.bucketCard}
-            onPress={() => navigation.navigate('BucketListDetail', { item })} // ✅ 이동 연결
+            onPress={() => navigation.navigate('BucketListDetail', { bucket: item })}
           >
             <Image source={item.image} style={styles.cardImage} />
             <View style={styles.cardContent}>
@@ -83,7 +61,7 @@ export default function BucketListScreen() {
               <Ionicons
                 name="star"
                 size={18}
-                color={pinnedIds.includes(item.id) ? '#FBA834' : '#999'}
+                color={item.pinned ? '#FBA834' : '#999'}
               />
             </TouchableOpacity>
           </TouchableOpacity>
@@ -99,7 +77,6 @@ export default function BucketListScreen() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
   header: {
