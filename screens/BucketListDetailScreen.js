@@ -57,6 +57,9 @@ export default function BucketListDetailScreen() {
       category: bucket.tag,
       createdAt: new Date().toISOString(),
       achievedAt: new Date().toISOString(),
+      reason: bucket.reason || '',
+      vow: bucket.vow || '',
+      image: bucket.image || null,
       trophy: 'normal',
     };
     addTrophy(newTrophy);
