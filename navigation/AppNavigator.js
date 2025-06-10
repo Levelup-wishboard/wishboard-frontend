@@ -83,6 +83,7 @@ export default function AppNavigator() {
       <Tab.Screen name="BucketList" component={BucketListStack} />
       <Tab.Screen name="Community" component={CommunityStack} />
       <Tab.Screen name="Trophy" component={TrophyStack} />
+      
       <Tab.Screen
         name="mypage"
         component={HiddenStackScreen}
