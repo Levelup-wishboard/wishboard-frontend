@@ -74,10 +74,17 @@ export const BucketListProvider = ({ children }) => {
       return prevList;
     });
   };
+  const markBucketAsCompleted = (id) => {
+  setBucketList(prev =>
+    prev.map(item =>
+      item.id === id ? { ...item, completed: true } : item
+    )
+  );
+};
 
   return (
     <BucketListContext.Provider
-      value={{ bucketList, addBucketItem, updateBucketItem, deleteBucketItem, togglePin }}
+      value={{ bucketList, addBucketItem, updateBucketItem, deleteBucketItem, togglePin,  markBucketAsCompleted }}
     >
       {children}
     </BucketListContext.Provider>

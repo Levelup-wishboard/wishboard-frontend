@@ -92,16 +92,8 @@ export default function MyPageScreen() {
 
       {/* 메뉴 리스트 */}
       <ScrollView contentContainerStyle={styles.content}>
-        <MenuItem
-          icon="person-outline"
-          label="정보 변경"
-          onPress={() => navigation.navigate('EditionInfo')}
-        />
-        <MenuItem
-          icon="notifications-outline"
-          label="알림 설정"
-          onPress={() => navigation.navigate('Notification')}
-        />
+        
+        
         <MenuItem
           icon="chatbubble-ellipses-outline"
           label="댓글 단 글"

@@ -36,7 +36,9 @@ export default function HomeScreen() {
             <Image source={require('../assets/images/logo.png')} style={styles.logo} />
             <View style={styles.iconRow}>
               <Ionicons name="notifications-outline" size={24} color="#FBA834" style={styles.icon} />
-              <Ionicons name="person-outline" size={24} color="#FBA834" style={styles.icon} />
+              <TouchableOpacity onPress={() => navigation.navigate('mypage')}>
+  <Ionicons name="person-outline" size={24} color="#FBA834" style={styles.icon} />
+</TouchableOpacity>
             </View>
           </View>
           <Text style={styles.title}>김수정 님의 WISHBOARD</Text>

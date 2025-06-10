@@ -121,7 +121,16 @@ export default function TrophyScreen({ navigation }) {
           <TouchableOpacity
             key={trophy.bucketId}
             style={styles.card}
-            onPress={() => navigation.navigate('TrophyDetailPage1', { trophy })}
+            onPress={() =>
+  navigation.navigate('TrophyDetailPage1', {
+    trophy: {
+      ...trophy,
+      reason: trophy.reason,
+      resolution: trophy.vow, // 이름 맞춰줌
+      image: trophy.image
+    }
+  })
+}
           >
             <Image
               source={TROPHY_IMAGES[trophy.trophy] || TROPHY_IMAGES.normal}
