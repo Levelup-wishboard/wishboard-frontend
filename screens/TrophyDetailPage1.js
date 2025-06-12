@@ -251,7 +251,7 @@ export default function TropyDetailPage1({ route, navigation }) {
 
         <View style={styles.imageBox}>
           {imageSource ? (
-            <Image source={imageSource} style={styles.image} />
+            <Image source={{ uri: imageSource}} style={styles.image} />            
           ) : (
             <Text>이미지가 없습니다</Text>
           )}

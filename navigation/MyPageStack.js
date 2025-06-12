@@ -11,7 +11,7 @@ import MyPostsScreen from '../screens/MyPostsScreen';
 import LikedPostsScreen from '../screens/LikedPostsScreen';
 import AlamScreen from '../screens/AlamScreen';
 import LoginScreen from '../screens/LoginScreen';
-import BucketList from "../screens/BucketListScreen"
+import BucketList from "../screens/BucketListScreen";
 import PostDetailScreen from '../screens/PostDetailScreen';
 
 
