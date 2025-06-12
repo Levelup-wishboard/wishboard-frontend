@@ -265,13 +265,13 @@ export default function TropyDetailPage1({ route, navigation }) {
           <Text style={styles.textContent}>{detail.vow}</Text>
         </View>
       </ScrollView>
-{/* 
+
       <TouchableOpacity
         style={styles.fixedButton}
         onPress={() => navigation.navigate('TropyDetailPage2', { trophy, index: 0 })}
       >
        { <Text style={styles.buttonText}>{'다음 페이지 >'}</Text> }
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </View>
   );
 }
