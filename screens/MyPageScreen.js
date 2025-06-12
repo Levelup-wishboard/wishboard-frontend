@@ -109,11 +109,11 @@ export default function MyPageScreen() {
           label="내가 쓴 글"
           onPress={() => navigation.navigate('MyPosts')}
         />
-        <MenuItem
+        {/* <MenuItem
           icon="trophy-outline"
           label="진행중인 버킷리스트"
           onPress={() => navigation.navigate('OngoingBucketList')}
-        />
+        /> */}
 
         <TouchableOpacity style={styles.logoutButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.logoutText}>로그아웃</Text>
